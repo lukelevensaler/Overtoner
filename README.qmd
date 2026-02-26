@@ -1,12 +1,3 @@
----
-title: "Overtoner Documentation"
-format: 
-  gfm:
-    variant: +yaml_metadata_block
-    toc: true
-    toc-depth: 2
----
-
 # Welcome to the Overtoner, a quantum computation tool for deriving molar extinction coefficients for IR/NIR peaks.
 
 
@@ -463,7 +454,7 @@ The code evaluates this in log-magnitude and sign form:
  $$
 5. Determine the sign and log-magnitude:
  $$
- \operatorname{sign}(I_m) = \operatorname{sign}(\Delta),\qquad
+ \mathrm{sign}(I_m) = \mathrm{sign}(\Delta),\qquad
  \ln|I_m| = \ln\Gamma(\beta) + \ln|\Delta|.
  $$
 
@@ -491,9 +482,9 @@ $$
 \ln m!,
 $$
 $$
-\operatorname{sign}(\text{term}_m)
+\mathrm{sign}(\text{term}_m)
 =
-(-1)^m \cdot \operatorname{sign}(c_m) \cdot \operatorname{sign}(I_m).
+(-1)^m \cdot \mathrm{sign}(c_m) \cdot \mathrm{sign}(I_m).
 $$
 
 
@@ -501,7 +492,7 @@ The `high_precision_S1_0n_log_space` routine builds:
 
 
 - `log_terms[m] = \ln|\text{term}_m|$ (as `Decimal`),
-- `term_signs[m] = \operatorname{sign}(\text{term}_m)` (as `int` $\pm1$),
+- `term_signs[m] = \mathrm{sign}(\text{term}_m)` (as `int` $\pm1$),
 
 
 and **never** directly forms $c_m$, $I_m$, or $m!$ in floating point.
@@ -566,7 +557,7 @@ B(\beta)
 $$
 in high precision, then decomposes $I_m^{(2)}$ into a sign and a log-magnitude:
 $$
-\operatorname{sign}(I_m^{(2)}) = \operatorname{sign}(B(\beta)),\qquad
+\mathrm{sign}(I_m^{(2)}) = \mathrm{sign}(B(\beta)),\qquad
 \ln|I_m^{(2)}| = \ln\Gamma(\beta) + \ln|B(\beta)|.
 $$
 
@@ -588,9 +579,9 @@ $$
 is carried out by `high_precision_alternating_sum_from_logs(log_terms, term_signs)`:
 
 
-1. Each pair $(\ln|t_m|, \operatorname{sign}(t_m))$ is converted back to a `Decimal` value:
+1. Each pair $(\ln|t_m|, \mathrm{sign}(t_m))$ is converted back to a `Decimal` value:
  $$
- t_m = \operatorname{sign}(t_m)\,\exp\bigl(\ln|t_m|\bigr).
+ t_m = \mathrm{sign}(t_m)\,\exp\bigl(\ln|t_m|\bigr).
  $$
  Extremely small terms with $\ln|t_m|$ below a cutoff (e.g. less than about $-1000$) are discarded as numerically irrelevant.
 
