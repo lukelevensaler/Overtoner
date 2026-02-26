@@ -35,13 +35,13 @@ From $\nu_e$ and $x_e$, the dissociation energy in wavenumber units is
 taken as the magnitude
 
 $$
-D_e^{(\mathrm{cm}^{-1})} = \frac{\nu_e}{4\,|x_e|},
+D_e^{\mathrm{cm}^{-1}} = \frac{\nu_e}{4\,|x_e|},
 $$
 
 which avoids sign-convention issues that can make $D_e$ negative. This
-$D_e^{(\mathrm{cm}^{-1})}$ is then converted to Joules and used,
-together with the reduced mass, to construct the Morse parameters $a$
-and $\lambda$ that enter the high-precision overlap and intensity
+$D_e^{\mathrm{cm}^{-1}}$ is then converted to Joules and used, together
+with the reduced mass, to construct the Morse parameters $a$ and
+$\lambda$ that enter the high-precision overlap and intensity
 calculations.
 
 ## Allowed organic stretches:
@@ -65,10 +65,10 @@ calculations.
 
 1.  **Clone the Repository**
 
-``` bash
-git clone https://github.com/lukelevensaler/Organic-Morse-Solver.git
-cd Organic-Morse-Solver
-```
+<!-- -->
+
+    git clone https://github.com/lukelevensaler/Organic-Morse-Solver.git
+    cd Organic-Morse-Solver
 
 2.  **Create the Conda Environment**
 
@@ -82,18 +82,17 @@ Libraries**: Optimized BLAS/LAPACK for numerical stability - **Parallel
 Computing**: MPI support for distributed quantum chemistry calculations
 
 Create the environment named `morse_solver`:
-`bash   conda env create -f environment.yml`
+`conda env create -f environment.yml`
 
 3.  **Activate the Environment**
 
-``` bash
-conda activate morse_solver
-```
+<!-- -->
+
+    conda activate morse_solver
 
 4.  **Verify Installation**
 
-Test that the CLI works correctly:
-`bash   python run_morse_model.py stretches`
+Test that the CLI works correctly: `python run_morse_model.py stretches`
 
 You should see the list of allowed organic stretches:
 `Allowed organic stretches:    - C–H    - C=O    - C–N    - N–H    - O–H`
@@ -102,14 +101,12 @@ You should see the list of allowed organic stretches:
 
 Once installed, you can run the solver from the repository directory:
 
-``` bash
-# Activate the environment (if not already active)
-conda activate morse_solver
+    # Activate the environment (if not already active)
+    conda activate morse_solver
 
 
-# Run the CLI
-python3 run_morse_model.py compute --help
-```
+    # Run the CLI
+    python3 run_morse_model.py compute --help
 
 ### Troubleshooting
 
@@ -180,7 +177,10 @@ For bond pair $(i,j)$, create bond vector and normalize: $$
 $$
 
 Displacement along bond axis: $$
-\vec{r}_i^{\pm} = \vec{r}_i \pm \frac{\delta}{2}\vec{u}_{ij}, \quad \vec{r}_j^{\pm} = \vec{r}_j \mp \frac{\delta}{2}\vec{u}_{ij}
+\begin{aligned}
+\vec{r}_i^{\pm} &= \vec{r}_i \pm \frac{\delta}{2}\vec{u}_{ij} \\[4pt]
+\vec{r}_j^{\pm} &= \vec{r}_j \mp \frac{\delta}{2}\vec{u}_{ij}
+\end{aligned}
 $$
 
 ### Dual Bond Axes (Advanced):
@@ -202,7 +202,10 @@ $$
 #### Step 3: Mass Weighting
 
 Apply mass weighting using user-provided masses $m_1$ and $m_2$: $$
-\vec{e}_{\text{sym}}^{(i)} \leftarrow \frac{\vec{e}_{\text{sym}}^{(i)}}{\sqrt{m_i}}, \quad \vec{e}_{\text{anti}}^{(i)} \leftarrow \frac{\vec{e}_{\text{anti}}^{(i)}}{\sqrt{m_i}}
+\begin{aligned}
+\vec{e}_{\text{sym}}^{(i)} &\leftarrow \frac{\vec{e}_{\text{sym}}^{(i)}}{\sqrt{m_i}} \\[4pt]
+\vec{e}_{\text{anti}}^{(i)} &\leftarrow \frac{\vec{e}_{\text{anti}}^{(i)}}{\sqrt{m_i}}
+\end{aligned}
 $$
 
 #### Step 4: Renormalization
@@ -231,9 +234,9 @@ typically).
 ### Dipole Moment Formula:
 
 $$
-\vec{\mu} = -\text{Tr}[\mathbf{D}^{\text{SCF}} \cdot \hat{\vec{\mu}}] + \vec{\mu}_{\text{nuc}}
+\vec{\mu} = -\text{Tr}\bigl[\mathbf{D}^{\text{SCF}} \cdot \hat{\vec{\mu}}\bigr] + \vec{\mu}_{\mathrm{nuc}}
 $$ where $\mathbf{D}^{\text{SCF}}$ is the SCF density matrix and
-$\vec{\mu}_{\text{nuc}}$ is the nuclear contribution.
+$\vec{\mu}_{\mathrm{nuc}}$ is the nuclear contribution.
 
 ## B.3 Finite Difference Derivatives
 
@@ -290,7 +293,7 @@ Instead it works with $\ln\Gamma(x)$ and asymptotic expansions:
 
 - Log-gamma (Stirling form) for large $x$: $$
   \ln\Gamma(x)
-  \;\approx\;
+  \,\approx\,
   \Bigl(x - \tfrac12\Bigr)\ln x - x + \tfrac12\ln(2\pi),
   \qquad x \gg 1.
   $$
@@ -302,11 +305,11 @@ and converted into a `Decimal`.
 - Digamma function $\psi(x) = \frac{d}{dx}\ln\Gamma(x)$ for large $x$:
   $$
   \psi(x)
-  \;\approx\;
-  \ln x \;-\; \frac{1}{2x} \;-\; \frac{1}{12x^2}
-  \;+\; \frac{1}{120x^4}
-  \;-\; \frac{1}{252x^6}
-  \;+\;\cdots,
+  \,\approx\,
+  \ln x \,-\, \frac{1}{2x} \,-\, \frac{1}{12x^2}
+  \,+\, \frac{1}{120x^4}
+  \,-\, \frac{1}{252x^6}
+  \,+\,\cdots,
   \qquad x \gg 1.
   $$
 
@@ -364,9 +367,9 @@ $$ are computed via Gamma functions in log form: $$
 \ln c_m
 =
 \ln\Gamma(n+\alpha_n+1)
-\;-\;
+\,-\,
 \ln\Gamma(n-m+1)
-\;-\;
+\,-\,
 \ln\Gamma(\alpha_n+m+1),
 \qquad m=0,\dots,n.
 $$
@@ -539,7 +542,7 @@ $$ is carried out by
 This strategy ensures that while individual terms can be as large as $$
 |t_m| \sim 10^{32000},
 $$ the final sums $$
-S_1^{(0,n)},\; S_2^{(0,n)}
+S_1^{(0,n)},\, S_2^{(0,n)}
 $$ can be accurately computed even when they are in the range
 $10^{-50}$–$10^{-200}$ in SI units.
 
@@ -609,19 +612,19 @@ D_e = \frac{\tilde\nu_e}{4 x_e}
 $$
 
 - Conversion from $D_e$ in $\text{cm}^{-1}$ to joules: $$
-  D_e(\mathrm{J}) \;=\; D_e(\mathrm{cm^{-1}}) \times h c
+  D_e(\mathrm{J}) \,=\, D_e(\mathrm{cm^{-1}}) \times h c
   $$ with $h c = 1.98644586\times10^{-23}\ \mathrm{J\cdot cm}$.
 
 - Harmonic angular frequency (rad s$^{-1}$): $$
-  \omega_e \;=\; 2\pi c\,\tilde\nu_e
+  \omega_e \,=\, 2\pi c\,\tilde\nu_e
   $$ with $c$ in cm s$^{-1}$ when $\tilde\nu_e$ is in $\text{cm}^{-1}$.
 
 - Relation to Morse parameter $a$ (SI): $$
-  a \;=\; \frac{\omega_e}{\sqrt{2 D_e(\mathrm{J})/\mu}}.
+  a \,=\, \frac{\omega_e}{\sqrt{2 D_e(\mathrm{J})/\mu}}.
   $$
 
 - Dimensionless Morse parameter $\lambda$: $$
-  \lambda \;=\; \frac{\sqrt{2\mu D_e(\mathrm{J})}}{a\hbar} \;=\; \frac{1}{2 x_e}\quad(\text{spectroscopic shortcut}).
+  \lambda \,=\, \frac{\sqrt{2\mu D_e(\mathrm{J})}}{a\hbar} \,=\, \frac{1}{2 x_e}\quad(\text{spectroscopic shortcut}).
   $$
 
 ------------------------------------------------------------------------
@@ -629,15 +632,15 @@ $$
 ## 3. Morse eigenfunctions (analytic form)
 
 Introduce the exponential variable $$
-y \;=\; 2\lambda e^{-aQ}, \qquad y>0.
+y \,=\, 2\lambda e^{-aQ}, \qquad y>0.
 $$
 
 The normalized Morse eigenfunctions (in $Q$-space, written using $y$)
 are: $$
-\boxed{\;\psi_v(Q) \;=\; N_v\,y^{\lambda - v - 1/2}\,e^{-y/2}\,L_v^{(2\lambda - 2v - 1)}(y)\;}
+\boxed{\,\psi_v(Q) \,=\, N_v\,y^{\lambda - v - 1/2}\,e^{-y/2}\,L_v^{(2\lambda - 2v - 1)}(y)\,}
 $$ where - $L_v^{(\alpha)}(y)$ is the associated Laguerre polynomial,
 and - the normalization constant is $$
-N_v \;=\; \sqrt{ \dfrac{a\,(2\lambda - 2v - 1)\,\Gamma(v+1)}{\Gamma(2\lambda - v)} } .
+N_v \,=\, \sqrt{ \dfrac{a\,(2\lambda - 2v - 1)\,\Gamma(v+1)}{\Gamma(2\lambda - v)} } .
 $$
 
 **Remarks:** - Allowed $v$ satisfy $v < \lambda - \frac{1}{2}$. - For
@@ -649,12 +652,12 @@ oscillator shapes near equilibrium.
 ## 4. Dipole expansion and transition dipole
 
 - Expand the molecular dipole along the normal coordinate $Q$: $$
-  \mu(Q) \;=\; \mu_0 + \mu'(0) Q + \tfrac12\mu''(0) Q^2 + \cdots
+  \mu(Q) \,=\, \mu_0 + \mu'(0) Q + \tfrac12\mu''(0) Q^2 + \cdots
   $$ where $\mu'(0) = d\mu/dQ|_{0}$, etc.
 
 - Vibrational transition dipole (approximate, keeping low-order
   derivatives): $$
-  M_{i\to f} \;=\; \langle\psi_i|\mu(Q)|\psi_f\rangle \approx \mu'(0)\langle\psi_i|Q|\psi_f\rangle + \tfrac12\mu''(0)\langle\psi_i|Q^2|\psi_f\rangle.
+  M_{i\to f} \,=\, \langle\psi_i|\mu(Q)|\psi_f\rangle \approx \mu'(0)\langle\psi_i|Q|\psi_f\rangle + \tfrac12\mu''(0)\langle\psi_i|Q^2|\psi_f\rangle.
   $$
 
 Define the overlap integrals $$
@@ -666,7 +669,7 @@ $$
 ## 5. Change of variables and finite-sum reduction
 
 Under $y=2\lambda e^{-aQ}$, we have $$
-Q \;=\; -\frac{1}{a}\ln\frac{y}{2\lambda},\qquad dQ = -\frac{1}{a}\frac{dy}{y}.
+Q \,=\, -\frac{1}{a}\ln\frac{y}{2\lambda},\qquad dQ = -\frac{1}{a}\frac{dy}{y}.
 $$ So the overlaps reduce to integrals of the form $$
 \int_0^{\infty} y^{p-1} e^{-y} L_m^{(\alpha_m)}(y) L_n^{(\alpha_n)}(y) \Bigl(\ln\frac{y}{2\lambda}\Bigr)^k \,dy,
 $$ with small integer $k$ (0,1,2).
@@ -696,12 +699,12 @@ $\Gamma(\beta)\psi^{(1)}(\beta)$.
 
 - Integrated molar absorptivity in conventional units (cm M$^{-1}$)
   relates to the squared transition dipole via: $$
-  \boxed{\;\int \varepsilon(\tilde\nu)\,d\tilde\nu \;=\; 4.319\times10^{-9}\;|M_{i\to f}|^2\;}
+  \boxed{\,\int \varepsilon(\tilde\nu)\,d\tilde\nu \,=\, 4.319\times10^{-9}\,|M_{i\to f}|^2\,}
   $$ (valid when $\tilde\nu$ is in $\text{cm}^{-1}$ and $M$ in C·m).
 
 - For a Gaussian lineshape with FWHM $\Delta\tilde\nu$, the peak molar
   extinction is $$
-  \varepsilon_{\max} \;=\; \frac{\int\varepsilon(\tilde\nu)\,d\tilde\nu}{\Delta\tilde\nu}\sqrt{\frac{4\ln2}{\pi}}.
+  \varepsilon_{\max} \,=\, \frac{\int\varepsilon(\tilde\nu)\,d\tilde\nu}{\Delta\tilde\nu}\sqrt{\frac{4\ln2}{\pi}}.
   $$
 
 ## 7. Associated Laguerre Polynomial for Overtone
