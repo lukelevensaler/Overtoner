@@ -462,7 +462,8 @@ def high_precision_Sk_0n_numeric(n: int, a: float, lambda_val: float, k: int) ->
         term = ((-1) ** m) * c_m / mp_ctx.factorial(m) * integral_val
         total += term
 
-    prefactor = N0 * Nn * ((-1 / mp_a) ** k)
+    # Include Jacobian factor from dQ = -(1/a) dy / y so denominator is a^{k+1}
+    prefactor = N0 * Nn * ((-1) ** k) * (mp_ctx.mpf('1') / (mp_a ** (k + 1)))
     result = prefactor * total
     return float(result)
 
@@ -622,7 +623,12 @@ def mp_high_precision_Sk_0n_logsum(n: int, a: float, lambda_val: float, k: int) 
     if sign_sum == 0:
         return 0.0
 
-    log_prefactor = mp_log_N_v(0, a, lambda_val) + mp_log_N_v(n, a, lambda_val) - k * mp_ctx.log(mp_a)
+    # Prefactor contributes (-1)^k / a^{k+1}; (-1)^k applied separately for clarity.
+    log_prefactor = (
+        mp_log_N_v(0, a, lambda_val)
+        + mp_log_N_v(n, a, lambda_val)
+        - (k + 1) * mp_ctx.log(mp_a)
+    )
     sum_sign = sign_sum * ((-1) ** k)
     log_abs_total = log_prefactor + log_abs_sum
 

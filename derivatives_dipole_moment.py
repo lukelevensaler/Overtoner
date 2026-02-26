@@ -10,7 +10,11 @@ import os
 from dataclasses import dataclass, field
 from typing import Any, Optional
 from tqdm import tqdm
-from normalize_bonds import process_bond_displacements
+from normalize_bonds import (
+	process_bond_displacements,
+	parse_dual_bond_axes,
+	create_symmetric_antisymmetric_vectors,
+)
 from optimize_geometry import optimize_geometry_scf
 from stabilization.scf_stabilization import robust_scf_calculation
 
@@ -285,11 +289,11 @@ def compute_µ_derivatives(coords_string: str, specified_spin: int, delta: float
 	pos0 = positions.copy()
 
 	# Process bond displacements and extract the unit direction vector (Å)
-	_, _, block_from_positions, direction = process_bond_displacements(
+	_, _, block_from_positions, base_direction = process_bond_displacements(
 		positions, atoms, dual_bond_axes, bond_pair, delta, m1, m2, atom_index, axis
 	)
 
-	if not np.any(direction):
+	if not np.any(base_direction):
 		raise RuntimeError("Displacement direction is zero; check displacement inputs")
 
 	if max_displacement is None:
@@ -303,84 +307,114 @@ def compute_µ_derivatives(coords_string: str, specified_spin: int, delta: float
 	conv_tol_sampling = 1e-4
 	max_cycles_sampling = 120
 
-	displacements = np.linspace(-max_displacement, max_displacement, num_displacements)
-	dipole_samples: list[np.ndarray] = []
+	def reshape_direction(flat_vector: np.ndarray) -> np.ndarray:
+		direction_coords = np.zeros_like(positions)
+		for atom_idx in range(len(atoms)):
+			start_idx = 3 * atom_idx
+			direction_coords[atom_idx] = flat_vector[start_idx:start_idx + 3]
+		return direction_coords
 
-	with tqdm(total=num_displacements, desc="Dipole Surface SCF", unit="geom", colour='green') as pbar:
-		for disp in displacements:
-			geom = pos0 + direction * disp
-			atom_block = block_from_positions(geom)
-			dipole_vec = dipole_for_geometry(
-				atom_block,
-				specified_spin,
-				basis=basis,
-				conv_tol=conv_tol_sampling,
-				max_cycle=max_cycles_sampling,
-				enable_stabilized_attempt=enable_stabilized_attempt,
-				stabilized_direct=stabilized_direct,
-				stabilized_diis_space=stabilized_diis_space,
-				stabilized_max_cycle=stabilized_max_cycle,
-				stabilized_conv_tol=stabilized_conv_tol,
-				stabilized_level_shift=stabilized_level_shift,
-			)
-			dipole_samples.append(dipole_vec)
-			pbar.update(1)
-			pbar.set_postfix(disp=f"{disp:+.4f} Å", norm=f"{np.linalg.norm(dipole_vec):.4f} D")
+	direction_candidates: list[tuple[str, np.ndarray]] = [("symmetric", base_direction)]
 
-	dipole_samples_array = np.array(dipole_samples, dtype=float)
+	if dual_bond_axes is not None:
+		bond1, bond2 = parse_dual_bond_axes(dual_bond_axes)
+		e_sym_flat, e_anti_flat = create_symmetric_antisymmetric_vectors(positions, atoms, bond1, bond2, float(m1), float(m2))
+		# ensure we consider both combinations; process_bond_displacements already used symmetric vector
+		anti_coords = reshape_direction(e_anti_flat)
+		sym_coords = reshape_direction(e_sym_flat)
+		# Replace base direction with freshly computed symmetric vector for consistency
+		direction_candidates = [("symmetric", sym_coords), ("antisymmetric", anti_coords)]
 
-	# Fit each Cartesian component with an order >= poly_order polynomial
-	max_possible_order = min(poly_order, num_displacements - 1)
-	derivative_vectors: dict[int, np.ndarray] = {
-		1: np.zeros(3, dtype=float),
-		2: np.zeros(3, dtype=float),
-		3: np.zeros(3, dtype=float),
-		4: np.zeros(3, dtype=float),
-	}
-	polynomial_coefficients: list[np.ndarray] = []
+	def evaluate_direction(label: str, direction: np.ndarray) -> DipoleDerivativeResult:
+		print(f"Evaluating {label} displacement mode for dipole derivatives")
+		displacements = np.linspace(-max_displacement, max_displacement, num_displacements)
+		dipole_samples_local: list[np.ndarray] = []
 
-	for comp in range(3):
-		coeffs = np.polyfit(displacements, dipole_samples_array[:, comp], deg=max_possible_order)
-		polynomial_coefficients.append(coeffs)
-		for order in range(1, 5):
-			if order <= len(coeffs) - 1:
-				derivative_coeffs = np.polyder(coeffs, m=order)
-				derivative_vectors[order][comp] = np.polyval(derivative_coeffs, 0.0)
-			else:
-				derivative_vectors[order][comp] = 0.0
+		with tqdm(total=num_displacements, desc=f"Dipole Surface SCF ({label})", unit="geom", colour='green') as pbar:
+			for disp in displacements:
+				geom = pos0 + direction * disp
+				atom_block = block_from_positions(geom)
+				dipole_vec = dipole_for_geometry(
+					atom_block,
+					specified_spin,
+					basis=basis,
+					conv_tol=conv_tol_sampling,
+					max_cycle=max_cycles_sampling,
+					enable_stabilized_attempt=enable_stabilized_attempt,
+					stabilized_direct=stabilized_direct,
+					stabilized_diis_space=stabilized_diis_space,
+					stabilized_max_cycle=stabilized_max_cycle,
+					stabilized_conv_tol=stabilized_conv_tol,
+					stabilized_level_shift=stabilized_level_shift,
+				)
+				dipole_samples_local.append(dipole_vec)
+				pbar.update(1)
+				pbar.set_postfix(disp=f"{disp:+.4f} Å", norm=f"{np.linalg.norm(dipole_vec):.4f} D")
 
-	µ_prime_vec = derivative_vectors[1]
-	µ_double_prime_vec = derivative_vectors[2]
-	µ_triple_prime_vec = derivative_vectors[3]
-	µ_quadruple_prime_vec = derivative_vectors[4]
+		dipole_samples_array = np.array(dipole_samples_local, dtype=float)
+		displacements_copy = np.linspace(-max_displacement, max_displacement, num_displacements)
 
-	print(f"Debug: SCF first derivative vector (Debye/Å): {µ_prime_vec}")
-	print(f"Debug: SCF second derivative vector (Debye/Å²): {µ_double_prime_vec}")
-	print(f"Debug: SCF third derivative vector (Debye/Å³): {µ_triple_prime_vec}")
-	print(f"Debug: SCF fourth derivative vector (Debye/Å⁴): {µ_quadruple_prime_vec}")
+		max_possible_order = min(poly_order, num_displacements - 1)
+		derivative_vectors: dict[int, np.ndarray] = {
+			1: np.zeros(3, dtype=float),
+			2: np.zeros(3, dtype=float),
+			3: np.zeros(3, dtype=float),
+			4: np.zeros(3, dtype=float),
+		}
+		polynomial_coefficients: list[np.ndarray] = []
 
-	µ_prime = float(np.linalg.norm(µ_prime_vec))
-	µ_double_prime = float(np.linalg.norm(µ_double_prime_vec))
-	µ_triple_prime = float(np.linalg.norm(µ_triple_prime_vec))
-	µ_quadruple_prime = float(np.linalg.norm(µ_quadruple_prime_vec))
+		for comp in range(3):
+			coeffs = np.polyfit(displacements_copy, dipole_samples_array[:, comp], deg=max_possible_order)
+			polynomial_coefficients.append(coeffs)
+			for order in range(1, 5):
+				if order <= len(coeffs) - 1:
+					derivative_coeffs = np.polyder(coeffs, m=order)
+					derivative_vectors[order][comp] = np.polyval(derivative_coeffs, 0.0)
+				else:
+					derivative_vectors[order][comp] = 0.0
 
-	print(f"Debug: |µ_prime(0)| = {µ_prime:.10e} Debye/Å")
-	print(f"Debug: |µ_double_prime(0)| = {µ_double_prime:.10e} Debye/Å²")
-	print(f"Debug: |µ_triple_prime(0)| = {µ_triple_prime:.10e} Debye/Å³")
-	print(f"Debug: |µ_quadruple_prime(0)| = {µ_quadruple_prime:.10e} Debye/Å⁴")
+		µ_prime_vec = derivative_vectors[1]
+		µ_double_prime_vec = derivative_vectors[2]
+		µ_triple_prime_vec = derivative_vectors[3]
+		µ_quadruple_prime_vec = derivative_vectors[4]
 
-	component_derivative_copy = {order: vec.copy() for order, vec in derivative_vectors.items()}
+		print(f"Debug ({label}): SCF first derivative vector (Debye/Å): {µ_prime_vec}")
+		print(f"Debug ({label}): SCF second derivative vector (Debye/Å²): {µ_double_prime_vec}")
+		print(f"Debug ({label}): SCF third derivative vector (Debye/Å³): {µ_triple_prime_vec}")
+		print(f"Debug ({label}): SCF fourth derivative vector (Debye/Å⁴): {µ_quadruple_prime_vec}")
 
-	return DipoleDerivativeResult(
-		mu_prime=µ_prime,
-		mu_double_prime=µ_double_prime,
-		mu_triple_prime=µ_triple_prime,
-		mu_quadruple_prime=µ_quadruple_prime,
-		component_derivatives=component_derivative_copy,
-		displacement_grid=displacements.copy(),
-		dipole_samples=dipole_samples_array.copy(),
-		polynomial_coefficients=[coeff.copy() for coeff in polynomial_coefficients],
-	)
+		µ_prime = float(np.linalg.norm(µ_prime_vec))
+		µ_double_prime = float(np.linalg.norm(µ_double_prime_vec))
+		µ_triple_prime = float(np.linalg.norm(µ_triple_prime_vec))
+		µ_quadruple_prime = float(np.linalg.norm(µ_quadruple_prime_vec))
+
+		print(f"Debug ({label}): |µ_prime(0)| = {µ_prime:.10e} Debye/Å")
+		print(f"Debug ({label}): |µ_double_prime(0)| = {µ_double_prime:.10e} Debye/Å²")
+		print(f"Debug ({label}): |µ_triple_prime(0)| = {µ_triple_prime:.10e} Debye/Å³")
+		print(f"Debug ({label}): |µ_quadruple_prime(0)| = {µ_quadruple_prime:.10e} Debye/Å⁴")
+
+		component_derivative_copy = {order: vec.copy() for order, vec in derivative_vectors.items()}
+
+		return DipoleDerivativeResult(
+			mu_prime=µ_prime,
+			mu_double_prime=µ_double_prime,
+			mu_triple_prime=µ_triple_prime,
+			mu_quadruple_prime=µ_quadruple_prime,
+			component_derivatives=component_derivative_copy,
+			displacement_grid=displacements_copy.copy(),
+			dipole_samples=dipole_samples_array.copy(),
+			polynomial_coefficients=[coeff.copy() for coeff in polynomial_coefficients],
+		)
+
+	results_with_labels: list[tuple[str, DipoleDerivativeResult]] = []
+	for label, candidate_direction in direction_candidates:
+		result = evaluate_direction(label, candidate_direction)
+		results_with_labels.append((label, result))
+
+	best_label, best_result = max(results_with_labels, key=lambda item: item[1].mu_prime)
+	print(f"Selected {best_label} displacement mode (|µ'| = {best_result.mu_prime:.4e} Debye/Å)")
+
+	return best_result
 
 def compute_µ_derivatives_from_optimization(optimized_coords: np.ndarray, atoms: list[str], specified_spin: int, delta: float = 0.005, basis: str | None = None, atom_index: int = 0, axis: int = 2, bond_pair: tuple[int, int] | None = None, dual_bond_axes: str | None = None, m1: float | None = None, m2: float | None = None,
 									   enable_stabilized_attempt: bool = True,

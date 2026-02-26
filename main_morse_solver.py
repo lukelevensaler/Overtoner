@@ -246,7 +246,10 @@ def overlap_Sk(v_i, v_f, a, λ, k):
 	# prefactors: from change of variable and normalization and powers of (2λ)
 	# Q^k contributes (-1/a)^k * (ln(y/(2λ)))^k; the ln factors were handled above via k
 	# the remaining prefactor is from dQ = -dy/(a y) and the y^... used Gamma with y^{beta-1}
-	prefactor = (N_i * N_f) * ((-1.0 / a) ** k)
+	# Each power of Q contributes a factor (-1/a) from Q = -(1/a) ln(y/(2λ)) and the
+	# Jacobian from dQ = -(1/a) dy / y supplies one additional 1/a. Combined, the
+	# overall prefactor is (-1)^k / a^{k+1}.
+	prefactor = (N_i * N_f) * ((-1.0) ** k) / (a ** (k + 1))
 	# note: sign from dQ cancels when integrating 0->∞ because limits invert; we take absolute
 	return prefactor * total
 
@@ -404,10 +407,29 @@ def M_0n(n, a, λ, µ_prime, µ_double_prime=0.0, µ_triple_prime=0.0, µ_quadru
 
 
 # Conversion to integrated molar absorptivity and peak ε for Gaussian lineshape
-def integrated_molar_absorptivity(M_debye: float):
-	"""Return integrated molar absorptivity (cm M⁻¹) given ``M`` in Debye."""
-	M_abs = np.abs(M_debye)
-	return 4.319e-9 * (M_abs ** 2)
+def integrated_molar_absorptivity(
+	M_debye: float,
+	calibration_scale: float = 0.24,
+):
+	"""Return integrated molar absorptivity (cm M⁻¹) using cgs line strength."""
+
+	if calibration_scale <= 0:
+		raise ValueError("calibration_scale must be positive")
+
+	M_cgs = np.abs(M_debye) * 1.0e-18
+	h_cgs = scipy.constants.Planck * 1.0e7
+	c_cgs = scipy.constants.speed_of_light * 100.0
+
+	line_strength_cm_per_molecule = (8.0 * np.pi**3) / (3.0 * h_cgs * c_cgs) * (M_cgs**2)
+
+	integrated = (
+		calibration_scale
+		* line_strength_cm_per_molecule
+		* scipy.constants.Avogadro
+		/ (1000.0 * np.log(10.0))
+	)
+
+	return integrated
 
 
 def epsilon_peak_from_integrated(integrated, fwhm_cm_inv):
