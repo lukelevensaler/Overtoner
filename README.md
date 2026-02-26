@@ -1,85 +1,4 @@
----
-title: Overtoner Documentation
-format:
-  gfm:
-    variant: +yaml_metadata_block
-    toc: true
-    toc-depth: 2
----
 
-
-- [Welcome to the Overtoner, a quantum computation tool for deriving
-  molar extinction coefficients for IR/NIR
-  peaks.](#welcome-to-the-overtoner-a-quantum-computation-tool-for-deriving-molar-extinction-coefficients-for-irnir-peaks)
-  - [This CLI performs the following quantum chemistry and Morse
-    Model-based anharmonicty calulations to determine the molar
-    extinction coefficent ε in $\text{M·cm}^{-1}$ for any organic
-    molecule’s IR (or NIR) overtone peak. Its algorithm can even compute
-    ε values for fundamnetal peaks, at full anharmonic
-    accuracy.](#this-cli-performs-the-following-quantum-chemistry-and-morse-model-based-anharmonicty-calulations-to-determine-the-molar-extinction-coefficent-ε-in-textmcm-1-for-any-organic-molecules-ir-or-nir-overtone-peak-its-algorithm-can-even-compute-ε-values-for-fundamnetal-peaks-at-full-anharmonic-accuracy)
-  - [Inputs required](#inputs-required)
-  - [Morse model parameters used](#morse-model-parameters-used)
-  - [Allowed organic stretches:](#allowed-organic-stretches)
-  - [Installation](#installation)
-- [Part A: Optimizing Molecular
-  Geometry](#part-a-optimizing-molecular-geometry)
-  - [A.1 Initial Geometry Setup](#a1-initial-geometry-setup)
-  - [A.2 High-Precision SCF
-    Calculation](#a2-high-precision-scf-calculation)
-  - [A.3 SCF Gradient-Based
-    Optimization](#a3-scf-gradient-based-optimization)
-- [Part B: Getting a Dipole Derivative from the Optimized Molecular
-  Geometry](#part-b-getting-a-dipole-derivative-from-the-optimized-molecular-geometry)
-  - [B.1 Coordinate Displacement
-    Strategy](#b1-coordinate-displacement-strategy)
-  - [B.2 SCF Dipole Moment
-    Calculations](#b2-scf-dipole-moment-calculations)
-  - [B.3 Finite Difference
-    Derivatives](#b3-finite-difference-derivatives)
-- [High-Precision Arithmetic and
-  Stabilization](#high-precision-arithmetic-and-stabilization)
-  - [1. Asymptotic Gamma and
-    Polygamma](#1-asymptotic-gamma-and-polygamma)
-  - [2. Normalization Constants in Log
-    Space](#2-normalization-constants-in-log-space)
-  - [3. Laguerre Coefficients in Log
-    Space](#3-laguerre-coefficients-in-log-space)
-  - [4. Log-Space Construction of the Overlap
-    Terms](#4-log-space-construction-of-the-overlap-terms)
-  - [5. Alternating Sum in Log Space](#5-alternating-sum-in-log-space)
-  - [6. Effective Precision and Practical
-    Settings](#6-effective-precision-and-practical-settings)
-- [Part C: The Morse Model](#part-c-the-morse-model)
-  - [1. Coordinate, reduced mass, and Morse
-    potential](#1-coordinate-reduced-mass-and-morse-potential)
-  - [2. Spectroscopic (vibrational) energy levels and
-    relations](#2-spectroscopic-vibrational-energy-levels-and-relations)
-  - [3. Morse eigenfunctions (analytic
-    form)](#3-morse-eigenfunctions-analytic-form)
-  - [4. Dipole expansion and transition
-    dipole](#4-dipole-expansion-and-transition-dipole)
-  - [5. Change of variables and finite-sum
-    reduction](#5-change-of-variables-and-finite-sum-reduction)
-  - [6. Conversion from transition dipole to molar
-    absorptivity](#6-conversion-from-transition-dipole-to-molar-absorptivity)
-  - [7. Associated Laguerre Polynomial for
-    Overtone](#7-associated-laguerre-polynomial-for-overtone)
-  - [8. Overlap Integrals S1 and S2](#8-overlap-integrals-s1-and-s2)
-  - [9. Laguerre Polynomial Coefficients (Degree
-    n)](#9-laguerre-polynomial-coefficients-degree-n)
-  - [10. S1 Overlap (Q Linear Term)](#10-s1-overlap-q-linear-term)
-  - [11. Compute Gamma Functions](#11-compute-gamma-functions)
-  - [12. S2 Overlap (Q² Term)](#12-s2-overlap-q²-term)
-  - [13. Express Gamma Fucntions](#13-express-gamma-fucntions)
-  - [14. Transition Dipole Matrix
-    Element](#14-transition-dipole-matrix-element)
-  - [15. Assign dipole derivatives](#15-assign-dipole-derivatives)
-  - [16. Compute M\_{0→n}](#16-compute-m_0n)
-  - [17. Integrated Molar
-    Absorptivity](#17-integrated-molar-absorptivity)
-  - [18. Peak Molar Extinction
-    Coefficient](#18-peak-molar-extinction-coefficient)
-  - [How To Use the CLI](#how-to-use-the-cli)
 
 # Welcome to the Overtoner, a quantum computation tool for deriving molar extinction coefficients for IR/NIR peaks.
 
@@ -503,7 +422,7 @@ The code evaluates this in log-magnitude and sign form:
      \psi(\beta) - \ln(2\lambda).
      $$
 5.  Determine the sign and log-magnitude: $$
-     \operatorname{sign}(I_m) = \operatorname{sign}(\Delta),\qquad
+     \mathrm{sign}(I_m) = \mathrm{sign}(\Delta),\qquad
      \ln|I_m| = \ln\Gamma(\beta) + \ln|\Delta|.
      $$
 
@@ -525,16 +444,15 @@ $$ $$
 -
 \ln m!,
 $$ $$
-\operatorname{sign}(\text{term}_m)
+\mathrm{sign}(\text{term}_m)
 =
-(-1)^m \cdot \operatorname{sign}(c_m) \cdot \operatorname{sign}(I_m).
+(-1)^m \cdot \mathrm{sign}(c_m) \cdot \mathrm{sign}(I_m).
 $$
 
 The `high_precision_S1_0n_log_space` routine builds:
 
 - `log_terms[m] = \ln|\text{term}_m|$ (as`Decimal\`),
-- `term_signs[m] = \operatorname{sign}(\text{term}_m)` (as `int`
-  $\pm1$),
+- `term_signs[m] = \mathrm{sign}(\text{term}_m)` (as `int` $\pm1$),
 
 and **never** directly forms $c_m$, $I_m$, or $m!$ in floating point.
 
@@ -589,7 +507,7 @@ B(\beta)
 \ln(2\lambda)^2
 $$ in high precision, then decomposes $I_m^{(2)}$ into a sign and a
 log-magnitude: $$
-\operatorname{sign}(I_m^{(2)}) = \operatorname{sign}(B(\beta)),\qquad
+\mathrm{sign}(I_m^{(2)}) = \mathrm{sign}(B(\beta)),\qquad
 \ln|I_m^{(2)}| = \ln\Gamma(\beta) + \ln|B(\beta)|.
 $$
 
@@ -606,9 +524,9 @@ The summation of the series $$
 $$ is carried out by
 `high_precision_alternating_sum_from_logs(log_terms, term_signs)`:
 
-1.  Each pair $(\ln|t_m|, \operatorname{sign}(t_m))$ is converted back
-    to a `Decimal` value: $$
-     t_m = \operatorname{sign}(t_m)\,\exp\bigl(\ln|t_m|\bigr).
+1.  Each pair $(\ln|t_m|, \mathrm{sign}(t_m))$ is converted back to a
+    `Decimal` value: $$
+     t_m = \mathrm{sign}(t_m)\,\exp\bigl(\ln|t_m|\bigr).
      $$ Extremely small terms with $\ln|t_m|$ below a cutoff (e.g. less
     than about $-1000$) are discarded as numerically irrelevant.
 
