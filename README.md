@@ -174,12 +174,8 @@ moment derivatives using SCF dipole moments.
 For bond pair $(i,j)$, create bond vector and normalize: 
 $$\vec{u}_{ij} = \frac{\vec{r}_j - \vec{r}_i}{|\vec{r}_j - \vec{r}_i|}$$
 
-Displacement along bond axis: $$
-\begin{aligned}
-\vec{r}_i^{\pm} &= \vec{r}_i \pm \frac{\delta}{2}\vec{u}_{ij} \\[4pt]
-\vec{r}_j^{\pm} &= \vec{r}_j \mp \frac{\delta}{2}\vec{u}_{ij}
-\end{aligned}
-$$
+Displacement along bond axis:
+$$\begin{aligned}\vec{r}_i^{\pm} &= \vec{r}_i \pm \frac{\delta}{2}\vec{u}_{ij} \\[4pt]\vec{r}_j^{\pm} &= \vec{r}_j \mp \frac{\delta}{2}\vec{u}_{ij}\end{aligned}$$
 
 ### Dual Bond Axes (Advanced):
 
@@ -199,18 +195,13 @@ $$
 
 #### Step 3: Mass Weighting
 
-Apply mass weighting using user-provided masses $m_1$ and $m_2$: $$
-\begin{aligned}
-\vec{e}_{\text{sym}}^{(i)} &\leftarrow \frac{\vec{e}_{\text{sym}}^{(i)}}{\sqrt{m_i}} \\[4pt]
-\vec{e}_{\text{anti}}^{(i)} &\leftarrow \frac{\vec{e}_{\text{anti}}^{(i)}}{\sqrt{m_i}}
-\end{aligned}
-$$
+Apply mass weighting using user-provided masses $m_1$ and $m_2$:
+
+$$\begin{aligned}\vec{e}_{\text{sym}}^{(i)} &\leftarrow \frac{\vec{e}_{\text{sym}}^{(i)}}{\sqrt{m_i}} \\[4pt]\vec{e}_{\text{anti}}^{(i)} &\leftarrow \frac{\vec{e}_{\text{anti}}^{(i)}}{\sqrt{m_i}}\end{aligned}$$
 
 #### Step 4: Renormalization
 
-$$
-\vec{e}_{\text{sym}} \leftarrow \frac{\vec{e}_{\text{sym}}}{|\vec{e}_{\text{sym}}|}, \quad \vec{e}_{\text{anti}} \leftarrow \frac{\vec{e}_{\text{anti}}}{|\vec{e}_{\text{anti}}|}
-$$
+$$\vec{e}_{\text{sym}} \leftarrow \frac{\vec{e}_{\text{sym}}}{|\vec{e}_{\text{sym}}|},\quad \vec{e}_{\text{anti}} \leftarrow \frac{\vec{e}_{\text{anti}}}{|\vec{e}_{\text{anti}}|}$$
 
 **Primary displacement**: Use symmetric mode (larger projection
 typically).
