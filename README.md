@@ -309,7 +309,7 @@ polynomial corrections retain far more than 16 digits.
 ## 2. Normalization Constants in Log Space
 
 The Morse eigenfunction normalization constants $$N_v=\sqrt{\frac{a\,(2\lambda - 2v - 1)\,\Gamma(v+1)}{\Gamma(2\lambda - v)}}$$ are never formed directly. Instead,
-`high_precision_log_N_v(v,a,\lambda)` computes $$\ln N_v=\frac12\Bigl[\ln a + \ln(2\lambda - 2v - 1)+ \ln\Gamma(v+1)- \ln\Gamma(2\lambda - v)\Bigr,]$$ entirely in `Decimal` log space using `high_precision_log_gamma`. The actual $N_v$ is only obtained, if needed, via $$N_v = \exp\bigl(\ln N_v\bigr),$$ and underflows are handled explicitly (values below about $\ln 10^{-100}$ are clamped).
+`high_precision_log_N_v(v,a,\lambda)` computes $$\ln N_v=\frac12\Bigl[\ln a + \ln(2\lambda - 2v - 1)+ \ln\Gamma(v+1)- \ln\Gamma(2\lambda - v)\Bigr]$$ entirely in `Decimal` log space using `high_precision_log_gamma`. The actual $N_v$ is only obtained, if needed, via $$N_v = \exp\bigl(\ln N_v\bigr),$$ and underflows are handled explicitly (values below about $\ln 10^{-100}$ are clamped).
 
 These log-space normalization constants are used both in the $S_1$ and
 $S_2$ overlap integrals.
