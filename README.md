@@ -545,7 +545,7 @@ $$S_2 = \frac{N_0 N_n}{a^3} \sum_{m=0}^{n} (-1)^m \frac{c_m}{m!} I_m^{(2)},$$ wi
 
 ## 13. Express Gamma Functions
 
-### 13a) Express $\text{I_m}^{(2)}$ via Digamma and Trigamma Functions
+### 13a) Express $\text{I}_m^{(2)}$ via Digamma and Trigamma Functions
 
 $I_m^{(2)} = (2+m),$ where $\psi^{(1)}(x)$ is the trigamma function.
 
