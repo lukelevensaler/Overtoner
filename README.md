@@ -265,7 +265,7 @@ the final physical quantities (transition dipole moments) are tiny.
 **API Map (functions → equations):** - `high_precision_log_gamma(x)`:
 implements the Stirling-form approximation for $\ln\Gamma(x)$ in
 Section 1. - `high_precision_digamma(x)`,
-`high_precision_polygamma(1, x)`: implement the large-$x$ expansions for
+`high_precision_polygamma(1, x)`: implement the $\text{large-x}$ expansions for
 $\psi(x)$ and $\psi_1(x)$ in Section 1. -
 `high_precision_log_N_v(v, a, λ)`,
 `high_precision_N_v(v, a, λ)`: implement the normalization $N_v$
@@ -354,12 +354,14 @@ $$\mathrm{sign}(\text{term}_m)=(-1)^m \cdot \mathrm{sign}(c_m) \cdot \mathrm{sig
 
 The `high_precision_S1_0n_log_space` routine builds:
 
-- `log_terms[m] = \ln|\text{term}_m|$ (as`Decimal\`),
-- `term_signs[m] = \mathrm{sign}(\text{term}_m)` (as `int` $\pm1$),
+- `log_terms[m]` = $\ln|\text{term}_m|$ (as`Decimal`),
+- `term_signs[m]` = $\mathrm{sign}(\text{term}_m)$ (as `int` $\pm1$),
 
 and **never** directly forms $c_m$, $I_m$, or $m!$ in floating point.
 
-After the sum $$\sum_m \text{term}_m$$ is computed (see §5), the overall normalization factor is applied in log space: $$S_1^{(0,n)} =N_0 N_n\,a^{-2}\,\sum_{m=0}^n \text{term}_m,$$ with $$\ln|N_0 N_n a^{-2}|=\ln N_0+\ln N_n-2\ln a.$$
+After the sum $$\sum_m \text{term}_m$$ is computed (see §5), the overall normalization factor is applied in log space: 
+
+$$S_1^{(0,n)} =N_0 N_n\,a^{-2}\,\sum_{m=0}^n \text{term}_m,$$ with $$\ln|N_0 N_n a^{-2}|=\ln N_0+\ln N_n-2\ln a.$$
 
 Only at the very end is this combined log prefactor and log sum
 converted back to a real number via exponentiation.
@@ -443,9 +445,9 @@ Equivalently:
 
 $$D_e = \frac{\tilde\nu_e}{4 x_e}$$
 
-- Conversion from $D_e$ in $\text{cm}^{-1}$ to joules: $$D_e(\mathrm{J}) \,=\, D_e(\mathrm{cm^{-1}}) \times h c$$ with $h c = 1.98644586\times10^{-23}\ \mathrm{J\cdot cm$.
+- Conversion from $D_e$ in $\text{cm}^{-1}$ to joules: $$D_e(\mathrm{J}) \,=\, D_e(\mathrm{cm^{-1}}) \times h c$$ with $h c = 1.98644586\times10^{-23}\ \mathrm{J\cdot cm}$.
 
-- Harmonic angular frequency (rad s$^{-1}$): $$\omega_e \,=\, 2\pi c\,\tilde\nu_e$$ with $c$ in cm s$^{-1}$ when $\tilde\nu_e$ is in $\text{cm}^{-1}$.
+- Harmonic angular frequency ($\text{rad s}^{-1}$): $$\omega_e \,=\, 2\pi c\,\tilde\nu_e$$ with $c$ in $\text{cm s}^{-1}$ when $\tilde\nu_e$ is in $\text{cm}^{-1}$.
 
 - Relation to Morse parameter $a$ (SI): $$a \,=\, \frac{\omega_e}{\sqrt{2 D_e(\mathrm{J})/\mu}}.$$
 
@@ -490,7 +492,7 @@ Therefore each overlap becomes a finite sum of terms like $\Gamma(\beta)$, $\Gam
 
 ## 6. Conversion from transition dipole to molar absorptivity
 
-- Integrated molar absorptivity in conventional units (cm M$^{-1}$) relates to the squared transition dipole via: $$\boxed{\,\int \varepsilon(\tilde\nu)\,d\tilde\nu \,=\, 4.319\times10^{-9}\,|M_{i\to f}|^2\,}$$ (valid when $\tilde\nu$ is in $\text{cm}^{-1}$ and $M$ in C·m).
+- Integrated molar absorptivity in conventional units ($\text{cm M}^{-1}$) relates to the squared transition dipole via: $$\boxed{\,\int \varepsilon(\tilde\nu)\,d\tilde\nu \,=\, 4.319\times10^{-9}\,|M_{i\to f}|^2\,}$$ (valid when $\tilde\nu$ is in $\text{cm}^{-1}$ and $M$ in C·m).
 
 - For a Gaussian lineshape with FWHM $\Delta\tilde\nu$, the peak molar extinction is $$\varepsilon_{\max} \,=\, \frac{\int\varepsilon(\tilde\nu)\,d\tilde\nu}{\Delta\tilde\nu}\sqrt{\frac{4\ln2}{\pi}}.$$
 
@@ -498,7 +500,9 @@ Therefore each overlap becomes a finite sum of terms like $\Gamma(\beta)$, $\Gam
 
 - Degree = n $$L_n^{(\alpha_n)}(y) = \sum_{m=0}^{n} (-1)^m \frac{c_m}{m!} y^m$$
 - $\alpha_n = 2\lambda - 2 n - 1$
-- Coefficients: $$\begin{aligned}c_0 &= \binom{n+\alpha_n}{n},\\c_1 &= \binom{n+\alpha_n}{n-1},\\\vdots \\c_n &= \frac{1}{n!} \binom{n+\alpha_n}{0}\end{aligned}$$
+- Coefficients:
+
+$$\begin{aligned}c_0 &= \binom{n+\alpha_n}{n},\\c_1 &= \binom{n+\alpha_n}{n-1},\\\vdots \\c_n &= \frac{1}{n!} \binom{n+\alpha_n}{0}\end{aligned}$$
 
 ------------------------------------------------------------------------
 
@@ -512,7 +516,7 @@ Therefore each overlap becomes a finite sum of terms like $\Gamma(\beta)$, $\Gam
 
 - For overtone 0→n, $\alpha_n = 2\lambda - 2 n - 1$
 - The associated Laguerre polynomial expansion: $$L_n^{(\alpha_n)}(y) = \sum_{m=0}^{n} (-1)^m c_m y^m / m!$$
-- Binomial-based coefficients: $$\begin{aligned}c_0 &= \binom{\alpha_n + n}{n},\\c_1 &= \binom{\alpha_n + n}{n-1},\\&\vdots\\c_n &= \frac{1}{n!} \binom{\alpha_n + n}{0} = \frac{1}{n!}.\end{aligned}$$
+- Binomial-based coefficients: $$\begin{aligned}c_0 &= \binom{\alpha_n + n}{n},\\c_1 &=\binom{\alpha_n + n}{n-1},\\&\vdots\\c_n &= \frac{1}{n!} \binom{\alpha_n + n}{0} =\frac{1}{n!}.\end{aligned}$$
 
 ------------------------------------------------------------------------
 
@@ -539,7 +543,7 @@ $$S_2 = \frac{N_0 N_n}{a^3} \sum_{m=0}^{n} (-1)^m \frac{c_m}{m!} I_m^{(2)},$$ wi
 
 ## 13. Express Gamma Functions
 
-### 13a) Express $I_m^{(2)} via Digamma and Trigamma Functions
+### 13a) Express $\text{I_m}^{(2)} via Digamma and Trigamma Functions
 
 $I_m^{(2)} = (2+m),$ where $\psi^{(1)}(x)$ is the trigamma function.
 
