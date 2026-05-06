@@ -516,7 +516,9 @@ $$\begin{aligned}c_0 &= \binom{n+\alpha_n}{n},\\c_1 &= \binom{n+\alpha_n}{n-1},\
 
 - For overtone 0→n, $\alpha_n = 2\lambda - 2 n - 1$
 - The associated Laguerre polynomial expansion: $$L_n^{(\alpha_n)}(y) = \sum_{m=0}^{n} (-1)^m c_m y^m / m!$$
-- Binomial-based coefficients: $$\begin{aligned}c_0 &= \binom{\alpha_n + n}{n},\\c_1 &=\binom{\alpha_n + n}{n-1},\\&\vdots\\c_n &= \frac{1}{n!} \binom{\alpha_n + n}{0} =\frac{1}{n!}.\end{aligned}$$
+- Binomial-based coefficients: 
+
+$$\begin{aligned}c_0 &= \binom{\alpha_n + n}{n},\\c_1 &=\binom{\alpha_n + n}{n-1},\\&\vdots\\c_n &= \frac{1}{n!} \binom{\alpha_n + n}{0} =\frac{1}{n!}.\end{aligned}$$
 
 ------------------------------------------------------------------------
 
@@ -543,7 +545,7 @@ $$S_2 = \frac{N_0 N_n}{a^3} \sum_{m=0}^{n} (-1)^m \frac{c_m}{m!} I_m^{(2)},$$ wi
 
 ## 13. Express Gamma Functions
 
-### 13a) Express $\text{I_m}^{(2)} via Digamma and Trigamma Functions
+### 13a) Express $\text{I_m}^{(2)}$ via Digamma and Trigamma Functions
 
 $I_m^{(2)} = (2+m),$ where $\psi^{(1)}(x)$ is the trigamma function.
 
