@@ -324,7 +324,7 @@ This is exactly what the loop over $m$ in `high_precision_S1_0n_log_space` and `
 
 ### 4.1. $S_1 = \langle\psi_0|Q|\psi_n\rangle$ (`high_precision_S1_0n`)
 
-The function `high_precision_S1_0n` (which calls `high_precision_S1_0n_log_space` internally) implements the high-precision evaluation of the linear overlap $S_1$ for the $0\to n$ transition. In log-space form, the integral is reduced to a finite sum over $m$, $$S_1^{(0,n)}=\sum_{m=0}^n(-1)^m\frac{c_m}{m!}\, I_m$$ 
+The function `high_precision_S1_0n` (which calls `high_precision_S1_0n_log_space` internally) implements the high-precision evaluation of the linear overlap $S_1$ for the $0\to n$ transition. In log-space form, the integral is reduced to a finite sum over $m$, as shown by $$S_1^{(0,n)}=\sum_{m=0}^n(-1)^m\frac{c_m}{m!}\, I_m.$$ 
 
 where:
 $$I_m = \int_0^\infty y^{\beta-1} e^{-y} \Bigl(\ln \tfrac{y}{2\lambda}\Bigr)\,dy,\quad \text{with} \quad \beta = 2\lambda - 5 + m$$
@@ -344,7 +344,13 @@ The factorial $m!$ is likewise handled via high-precision log-gamma:
 
 $$\ln m! = \ln\Gamma(m+1).$$
 
-Thus, each term in the sum is represented purely through logs: $$\text{term}_m=(-1)^m\,c_m\,I_m / m!,$$ $$\ln|\text{term}_m|=\ln c_m+\ln|I_m|-\ln m!,$$ $$\mathrm{sign}(\text{term}_m)=(-1)^m \cdot \mathrm{sign}(c_m) \cdot \mathrm{sign}(I_m).$$
+Thus, each term in the sum is represented purely through logs: 
+
+$$\text{term}_m=(-1)^m\,c_m\,I_m / m!$$ 
+
+$$\ln|\text{term}_m|=\ln c_m+\ln|I_m|-\ln m!$$ 
+
+$$\mathrm{sign}(\text{term}_m)=(-1)^m \cdot \mathrm{sign}(c_m) \cdot \mathrm{sign}(I_m$$
 
 The `high_precision_S1_0n_log_space` routine builds:
 
@@ -353,7 +359,7 @@ The `high_precision_S1_0n_log_space` routine builds:
 
 and **never** directly forms $c_m$, $I_m$, or $m!$ in floating point.
 
-After the sum $\sum_m \text{term}_m$ is computed (see §5), the overall normalization factor is applied in log space: $$S_1^{(0,n)} =N_0 N_n\,a^{-2}\,\sum_{m=0}^n \text{term}_m,$$ with $$\ln|N_0 N_n a^{-2}|=\ln N_0+\ln N_n-2\ln a.$$
+After the sum $$\sum_m \text{term}_m$$ is computed (see §5), the overall normalization factor is applied in log space: $$S_1^{(0,n)} =N_0 N_n\,a^{-2}\,\sum_{m=0}^n \text{term}_m,$$ with $$\ln|N_0 N_n a^{-2}|=\ln N_0+\ln N_n-2\ln a.$$
 
 Only at the very end is this combined log prefactor and log sum
 converted back to a real number via exponentiation.
@@ -380,7 +386,7 @@ than about $-1000$) are discarded as numerically irrelevant.
 
 2. The terms $t_m$ are then summed purely in `Decimal` arithmetic: $$S = \sum_{m=0}^n t_m$$ with 200 (or more) digits of precision, which preserves dozens of significant digits even when the partial sums suffer catastrophic cancellation.
 
-This strategy ensures that while individual terms can be as large as $$|t_m| \sim 10^{32000},$$ the final sums $$S_1^{(0,n)},\, S_2^{(0,n)}$$ can be accurately computed even when they are in the range $10^{-50}$–$10^{-200}$ in SI units.
+This strategy ensures that while individual terms can be as large as $$|t_m| \sim 10^{32000},$$ the final sums $$S_1^{(0,n)},\, S_2^{(0,n)}$$ can be accurately computed even when they are in the range $10^{-50} \text{ to } 10^{-200}$ in SI units.
 
 ## 6. Effective Precision and Practical Settings
 
