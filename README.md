@@ -226,6 +226,7 @@ typically).
 $$\vec{\mu} = -\text{Tr}\bigl[\mathbf{D}^{\text{SCF}} \cdot \hat{\vec{\mu}}\bigr] + \vec{\mu}_{\mathrm{nuc}}$$ 
 
 where:
+
 $\mathbf{D}^{\text{SCF}}$ is the SCF density matrix and $\vec{\mu}_{\mathrm{nuc}}$ is the nuclear contribution.
 
 ## B.3 Finite Difference Derivatives
@@ -253,7 +254,7 @@ model input.
 
 ------------------------------------------------------------------------
 
-# High-Precision Arithmetic and Stabilization
+# Supporting Modules: High-Precision Arithmetic and Stabilization
 
 The Morse overtone integrals in this solver are evaluated using
 dedicated routines in the `stabilization` subdirectory, chiefly
@@ -281,27 +282,17 @@ alternating sum described in Section 5.
 For large real arguments $x$, the code never forms $\Gamma(x)$ directly.
 Instead it works with $\ln\Gamma(x)$ and asymptotic expansions:
 
-- Log-gamma (Stirling form) for large $x$: $$
-  \ln\Gamma(x)
-  \,\approx\,
-  \Bigl(x - \tfrac12\Bigr)\ln x - x + \tfrac12\ln(2\pi),
-  \qquad x \gg 1.
-  $$
+- Log-gamma (Stirling form) for large $x$: 
+
+$$\ln\Gamma(x)\,\approx\,\Bigl(x - \tfrac12\Bigr)\ln x - x + \tfrac12\ln(2\pi),\qquad x \gg 1.$$
 
 This is implemented in `high_precision_log_gamma(x)` using `Decimal.ln`
 for all logarithms. For moderate $x$ the SciPy special function is used
 and converted into a `Decimal`.
 
 - Digamma function $\psi(x) = \frac{d}{dx}\ln\Gamma(x)$ for large $x$:
-  $$
-  \psi(x)
-  \,\approx\,
-  \ln x \,-\, \frac{1}{2x} \,-\, \frac{1}{12x^2}
-  \,+\, \frac{1}{120x^4}
-  \,-\, \frac{1}{252x^6}
-  \,+\,\cdots,
-  \qquad x \gg 1.
-  $$
+
+  $$\psi(x)\,\approx\,\ln x \,-\, \frac{1}{2x} \,-\, \frac{1}{12x^2}\,+\, \frac{1}{120x^4}\,-\, \frac{1}{252x^6}\,+\,\cdots,\qquad x \gg 1.$$
 
 This asymptotic series is implemented in `high_precision_digamma(x)`
 (with SciPy used for moderate $x$).
@@ -317,80 +308,40 @@ polynomial corrections retain far more than 16 digits.
 
 ## 2. Normalization Constants in Log Space
 
-The Morse eigenfunction normalization constants $$
-N_v=\sqrt{\frac{a\,(2\lambda - 2v - 1)\,\Gamma(v+1)}{\Gamma(2\lambda - v)}}
-$$ are never formed directly. Instead,
-`high_precision_log_N_v(v,a,\lambda)` computes $$
-\ln N_v=\frac12\Bigl[\ln a + \ln(2\lambda - 2v - 1)+ \ln\Gamma(v+1)- \ln\Gamma(2\lambda - v)\Bigr],
-$$ entirely in `Decimal` log space using `high_precision_log_gamma`. The
-actual $N_v$ is only obtained, if needed, via $$
-N_v = \exp\bigl(\ln N_v\bigr),
-$$ and underflows are handled explicitly (values below about
-$\ln 10^{-100}$ are clamped).
+The Morse eigenfunction normalization constants $$N_v=\sqrt{\frac{a\,(2\lambda - 2v - 1)\,\Gamma(v+1)}{\Gamma(2\lambda - v)}}$$ are never formed directly. Instead,
+`high_precision_log_N_v(v,a,\lambda)` computes $$\ln N_v=\frac12\Bigl[\ln a + \ln(2\lambda - 2v - 1)+ \ln\Gamma(v+1)- \ln\Gamma(2\lambda - v)\Bigr,]$$ entirely in `Decimal` log space using `high_precision_log_gamma`. The actual $N_v$ is only obtained, if needed, via $$N_v = \exp\bigl(\ln N_v\bigr),$$ and underflows are handled explicitly (values below about $\ln 10^{-100}$ are clamped).
 
 These log-space normalization constants are used both in the $S_1$ and
 $S_2$ overlap integrals.
 
 ## 3. Laguerre Coefficients in Log Space
 
-The Morse overlaps used in `high_precision_S1_0n` and
-`high_precision_S2_0n` involve associated Laguerre polynomials
-\$L_n^{(\_n)}(y)\`. In the high-precision routines, the coefficients
-$c_m$ of the polynomial expansion $$
-L_n^{(\alpha_n)}(y) = \sum_{m=0}^{n} c_m\, y^m
-$$ are computed via Gamma functions in log form: $$
-\ln c_m=\ln\Gamma(n+\alpha_n+1)\,-\,\ln\Gamma(n-m+1)\,-\,\ln\Gamma(\alpha_n+m+1),\qquad m=0,\dots,n.
-$$
+The Morse overlaps used in `high_precision_S1_0n` and `high_precision_S2_0n` involve associated Laguerre polynomials \$L_n^{(\_n)}(y)\`. In the high-precision routines, the coefficients $c_m$ of the polynomial expansion $$L_n^{(\alpha_n)}(y) = \sum_{m=0}^{n} c_m\, y^m$$ are computed via Gamma functions in log form: $$\ln c_m=\ln\Gamma(n+\alpha_n+1)\,-\,\ln\Gamma(n-m+1)\,-\,\ln\Gamma(\alpha_n+m+1),\qquad m=0,\dots,n.$$
 
-This is exactly what the loop over $m$ in
-`high_precision_S1_0n_log_space` and `high_precision_S2_0n` does: it
-builds a list of `Decimal` values `log_c_values` (or `log_c_vals`)
-holding $\ln c_m$. By design, $$
-c_m > 0 \quad\Rightarrow\quad \text{sign}(c_m) = +1,
-$$ which is stored separately as `c_signs`.
+This is exactly what the loop over $m$ in `high_precision_S1_0n_log_space` and `high_precision_S2_0n` does: it builds a list of `Decimal` values `log_c_values` (or `log_c_vals`) holding $\ln c_m$. By design, $$c_m > 0 \quad\Rightarrow\quad \text{sign}(c_m) = +1,$$ which is stored separately as `c_signs`.
 
 ## 4. Log-Space Construction of the Overlap Terms
 
 ### 4.1. $S_1 = \langle\psi_0|Q|\psi_n\rangle$ (`high_precision_S1_0n`)
 
-The function `high_precision_S1_0n` (which calls
-`high_precision_S1_0n_log_space` internally) implements the
-high-precision evaluation of the linear overlap $S_1$ for the $0\to n$
-transition. In log-space form, the integral is reduced to a finite sum
-over $m$, $$
-S_1^{(0,n)}=\sum_{m=0}^n(-1)^m\frac{c_m}{m!}\, I_m,
-$$ where $$
-I_m=\int_0^\inftyy^{\beta-1}\,e^{-y}\Bigl(\ln\tfrac{y}{2\lambda}\Bigr)\,dy\quad\text{with}\quad\beta = 2\lambda - 5 + m.
-$$
+The function `high_precision_S1_0n` (which calls `high_precision_S1_0n_log_space` internally) implements the high-precision evaluation of the linear overlap $S_1$ for the $0\to n$ transition. In log-space form, the integral is reduced to a finite sum over $m$, $$S_1^{(0,n)}=\sum_{m=0}^n(-1)^m\frac{c_m}{m!}\, I_m, $$ where $$I_m=\int_0^\inftyy^{\beta-1}\,e^{-y}\Bigl(\ln\tfrac{y}{2\lambda}\Bigr)\,dy\quad\text{with}\quad\beta = 2\lambda - 5 + m.$$
 
 Analytically, this integral can be expressed in terms of $\Gamma$ and
-$\psi$: $$
-I_m=\Gamma(\beta)\,\Bigl[\psi(\beta) - \ln(2\lambda)\Bigr].
-$$
+$\psi$: $$I_m=\Gamma(\beta)\,\Bigl[\psi(\beta) - \ln(2\lambda)\Bigr].$$
 
 The code evaluates this in log-magnitude and sign form:
 
 1.  Compute $\ln\Gamma(\beta)$ via `high_precision_log_gamma(beta)`.
 2.  Compute $\psi(\beta)$ via `high_precision_digamma(beta)`.
 3.  Compute $\ln(2\lambda)$ as `log_2lambda = (2*lambda_dec).ln()`.
-4.  Form the difference $$
-    \Delta=\psi(\beta) - \ln(2\lambda).
-    $$
-5.  Determine the sign and log-magnitude: $$
-    \mathrm{sign}(I_m) = \mathrm{sign}(\Delta),\qquad\ln|I_m| = \ln\Gamma(\beta) + \ln|\Delta|.
-    $$
+4.  Form the difference $$\Delta=\psi(\beta) - \ln(2\lambda).$$
+5.  Determine the sign and log-magnitude: $$\mathrm{sign}(I_m) = \mathrm{sign}(\Delta),\qquad\ln|I_m| = \ln\Gamma(\beta) + \ln|\Delta|.$$
 
-The factorial $m!$ is likewise handled via high-precision log-gamma: $$
-\ln m! = \ln\Gamma(m+1).
-$$
+The factorial $m!$ is likewise handled via high-precision log-gamma: 
 
-Thus, each term in the sum is represented purely through logs: $$
-\text{term}_m=(-1)^m\,c_m\,I_m / m!,
-$$ $$
-\ln|\text{term}_m|=\ln c_m+\ln|I_m|-\ln m!,
-$$ $$
-\mathrm{sign}(\text{term}_m)=(-1)^m \cdot \mathrm{sign}(c_m) \cdot \mathrm{sign}(I_m).
-$$
+$$\ln m! = \ln\Gamma(m+1).$$
+
+Thus, each term in the sum is represented purely through logs: $$\text{term}_m=(-1)^m\,c_m\,I_m / m!,$$ $$\ln|\text{term}_m|=\ln c_m+\ln|I_m|-\ln m!,$$ $$\mathrm{sign}(\text{term}_m)=(-1)^m \cdot \mathrm{sign}(c_m) \cdot \mathrm{sign}(I_m).$$
 
 The `high_precision_S1_0n_log_space` routine builds:
 
@@ -399,12 +350,7 @@ The `high_precision_S1_0n_log_space` routine builds:
 
 and **never** directly forms $c_m$, $I_m$, or $m!$ in floating point.
 
-After the sum $\sum_m \text{term}_m$ is computed (see §5), the overall
-normalization factor is applied in log space: $$
-S_1^{(0,n)} =N_0 N_n\,a^{-2}\,\sum_{m=0}^n \text{term}_m,
-$$ with $$
-\ln|N_0 N_n a^{-2}|=\ln N_0+\ln N_n-2\ln a.
-$$
+After the sum $\sum_m \text{term}_m$ is computed (see §5), the overall normalization factor is applied in log space: $$S_1^{(0,n)} =N_0 N_n\,a^{-2}\,\sum_{m=0}^n \text{term}_m,$$ with $$\ln|N_0 N_n a^{-2}|=\ln N_0+\ln N_n-2\ln a.$$
 
 Only at the very end is this combined log prefactor and log sum
 converted back to a real number via exponentiation.
@@ -413,57 +359,30 @@ converted back to a real number via exponentiation.
 
 The high-precision quadratic-overlap routine `high_precision_S2_0n`
 mirrors the structure of `high_precision_S1_0n` but uses an $I_m^{(2)}$
-integral that contains both $\psi$ and $\psi_1$: $$
-S_2^{(0,n)} =\sum_{m=0}^n(-1)^m\frac{c_m}{m!}\, I_m^{(2)},
-$$ with $$
-I_m^{(2)}=\Gamma(\beta)\bigl[\psi(\beta)^2+\psi_1(\beta)-2\ln(2\lambda)\,\psi(\beta)+\ln(2\lambda)^2\bigr].
-$$
+integral that contains both $\psi$ and $\psi_1$: $$S_2^{(0,n)} =\sum_{m=0}^n(-1)^m\frac{c_m}{m!}\, I_m^{(2)},$$ with $$I_m^{(2)}=\Gamma(\beta)\bigl[\psi(\beta)^2+\psi_1(\beta)-2\ln(2\lambda)\,\psi(\beta)+\ln(2\lambda)^2\bigr].$$
 
-The code evaluates the bracket $$
-B(\beta)=\psi(\beta)^2 + \psi_1(\beta)-2\ln(2\lambda)\,\psi(\beta)+\ln(2\lambda)^2
-$$ in high precision, then decomposes $I_m^{(2)}$ into a sign and a
-log-magnitude: $$
-\mathrm{sign}(I_m^{(2)}) = \mathrm{sign}(B(\beta)),\qquad\ln|I_m^{(2)}| = \ln\Gamma(\beta) + \ln|B(\beta)|.
-$$
+The code evaluates the bracket $$B(\beta)=\psi(\beta)^2 + \psi_1(\beta)-2\ln(2\lambda)\,\psi(\beta)+\ln(2\lambda)^2$$ in high precision, then decomposes $I_m^{(2)}$ into a sign and a log-magnitude: $$\mathrm{sign}(I_m^{(2)}) = \mathrm{sign}(B(\beta)),\qquad\ln|I_m^{(2)}| = \ln\Gamma(\beta) + \ln|B(\beta)|.$$
 
 As for $S_1$, the term magnitudes and signs are stored as `log_terms`
-and `term_signs`, and the overall prefactor $$
-N_0 N_n a^{-3}
-$$ is applied in log space using $\ln N_v$ from `high_precision_log_N_v`
-and $\ln a$ from `Decimal.ln`.
+and `term_signs`, and the overall prefactor $$N_0 N_n a^{-3}$$ is applied in log space using $\ln N_v$ from `high_precision_log_N_v` and $\ln a$ from `Decimal.ln`.
 
 ## 5. Alternating Sum in Log Space
 
-The summation of the series $$
-\sum_{m=0}^n \text{term}_m
-$$ is carried out by
+The summation of the series $$\sum_{m=0}^n \text{term}_m$$ is carried out by
 `high_precision_alternating_sum_from_logs(log_terms, term_signs)`:
 
-1.  Each pair $(\ln|t_m|, \mathrm{sign}(t_m))$ is converted back to a
-    `Decimal` value: $$
-    t_m = \mathrm{sign}(t_m)\,\exp\bigl(\ln|t_m|\bigr).
-    $$ Extremely small terms with $\ln|t_m|$ below a cutoff (e.g. less
-    than about $-1000$) are discarded as numerically irrelevant.
+1. Each pair $(\ln|t_m|, \mathrm{sign}(t_m))$ is converted back to a
+`Decimal` value: $$t_m = \mathrm{sign}(t_m)\,\exp\bigl(\ln|t_m|\bigr).$$ Extremely small terms with $\ln|t_m|$ below a cutoff (e.g. less
+than about $-1000$) are discarded as numerically irrelevant.
 
-2.  The terms $t_m$ are then summed purely in `Decimal` arithmetic: $$
-    S = \sum_{m=0}^n t_m
-    $$ with 200 (or more) digits of precision, which preserves dozens of
-    significant digits even when the partial sums suffer catastrophic
-    cancellation.
+2. The terms $t_m$ are then summed purely in `Decimal` arithmetic: $$S = \sum_{m=0}^n t_m$$ with 200 (or more) digits of precision, which preserves dozens of significant digits even when the partial sums suffer catastrophic cancellation.
 
-This strategy ensures that while individual terms can be as large as $$
-|t_m| \sim 10^{32000},
-$$ the final sums $$
-S_1^{(0,n)},\, S_2^{(0,n)}
-$$ can be accurately computed even when they are in the range
-$10^{-50}$–$10^{-200}$ in SI units.
+This strategy ensures that while individual terms can be as large as $$|t_m| \sim 10^{32000},$$ the final sums $$S_1^{(0,n)},\, S_2^{(0,n)}$$ can be accurately computed even when they are in the range $10^{-50}$–$10^{-200}$ in SI units.
 
 ## 6. Effective Precision and Practical Settings
 
 Internally, `high_precision_arithmetic.py` uses Python’s `decimal`
-context to set a high, but tractable, working precision $$
-\texttt{getcontext().prec} = \mathcal{O}(10^2\text{–}10^3),
-$$ and then:
+context to set a high, but tractable, working precision $$\texttt{getcontext().prec} =\mathcal{O}(10^2\text{–}10^3),$$ and then:
 
 - All sensitive operations (log-gamma, digamma, trigamma, logarithms)
   are done in `Decimal`.
@@ -486,15 +405,11 @@ for very high overtones.
   coordinate as $Q$ (units: m).
 - Reduced mass for an A-B bond (e.g. N–H):
 
-$$
-\mu = \frac{m_A m_B}{m_A + m_B}
-$$
+$$\mu = \frac{m_A m_B}{m_A + m_B}$$
 
 - Morse potential (measured from equilibrium at $Q=0$):
 
-$$
-V(Q) = D_e\bigl(1 - e^{-aQ}\bigr)^2
-$$
+$$V(Q) = D_e\bigl(1 - e^{-aQ}\bigr)^2$$
 
 where
 
@@ -505,23 +420,19 @@ where
 
 ## 2. Spectroscopic (vibrational) energy levels and relations
 
-- Morse-level energy (wavenumbers, $\tilde\nu$ in $\text{cm}^{-1}$): $$
-  \tilde E_v = \tilde\nu_e\bigl(v+\tfrac12\bigr) - \tilde\nu_e x_e\bigl(v+\tfrac12\bigr)^2
-  $$ where
+- Morse-level energy (wavenumbers, $\tilde\nu$ in $\text{cm}^{-1}$): $$\tilde E_v = \tilde\nu_e\bigl(v+\tfrac12\bigr) - \tilde\nu_e x_e\bigl(v+\tfrac12\bigr)^2$$ 
+
+where:
 
 - $\tilde\nu_e$ is the fundamental ($\text{cm}^{-1}$),
 
 - $x_e$ is the anharmonicity constant (dimensionless).
 
-- Relation between anharmonicity and Morse well depth: $$
-  \tilde\nu_e x_e = \frac{\tilde\nu_e^2}{4 D_e} \qquad \text{(with } D_e \text{ in cm}^{-1}\text{)}
-  $$
+- Relation between anharmonicity and Morse well depth: $$\tilde\nu_e x_e = \frac{\tilde\nu_e^2}{4 D_e} \qquad \text{(with } D_e \text{ in cm}^{-1}\text{)}$$
 
 Equivalently:
 
-$$
-D_e = \frac{\tilde\nu_e}{4 x_e}
-$$
+$$D_e = \frac{\tilde\nu_e}{4 x_e}$$
 
 - Conversion from $D_e$ in $\text{cm}^{-1}$ to joules: $$
   D_e(\mathrm{J}) \,=\, D_e(\mathrm{cm^{-1}}) \times h c
@@ -705,9 +616,7 @@ I_m^{(2)} = (2+m) , \$\$ where $\psi^{(1)}(x)$ is the trigamma function.
 
 ### 13b) Term-by-Term Sum
 
-$$
-S_2 = \frac{N_0 N_n}{a^3} \sum_{m=0}^{n} (-1)^m c_m I_m^{(2)}/m!.
-$$
+$$S_2 = \frac{N_0 N_n}{a^3} \sum_{m=0}^{n} (-1)^m c_m I_m^{(2)}/m!.$$
 
 - Numerical evaluation uses the same approach as for S1.
 
@@ -715,13 +624,9 @@ $$
 
 ## 14. Transition Dipole Matrix Element
 
-Expand the dipole along the normal coordinate: $$
-\mu(Q) = \mu_0 + \mu'(0) Q + \frac12 \mu''(0) Q^2 + \cdots
-$$
+Expand the dipole along the normal coordinate: $$\mu(Q) = \mu_0 + \mu'(0) Q + \frac12 \mu''(0) Q^2 + \cdots$$
 
-The transition dipole for 0→n is approximately: $$
-M_{0\to n} \approx \mu'(0) S_1 + \frac12 \mu''(0) S_2.
-$$
+The transition dipole for 0→n is approximately: $$M_{0\to n} \approx \mu'(0) S_1 + \frac12 \mu''(0) S_2.$$
 
 ## 15. Assign dipole derivatives
 
@@ -732,28 +637,21 @@ $$
 
 ## 16. Compute M\_{0→n}
 
-$$
-M_{0\to n} = \mu'(0) S_1 + \frac12 \mu''(0) S_2
-$$ - S1 and S2 are obtained from Step 3 for the chosen bond and
+$$M_{0\to n} = \mu'(0) S_1 + \frac12 \mu''(0) S_2$$ - S1 and S2 are obtained from Step 3 for the chosen bond and
 overtone.
 
 ------------------------------------------------------------------------
 
 ## 17. Integrated Molar Absorptivity
 
-Use the general formula for IR (or NIR) vibrational transitions: $$
-\int \varepsilon(\tilde\nu) d\tilde\nu = 4.319\times10^{-9} |M_{0\to n}|^2 \quad [\mathrm{cm\,M^{-1}}]
-$$ - Units: C·m → M·cm⁻¹ - User can adjust constants if necessary for
-units.
+Use the general formula for IR (or NIR) vibrational transitions: $$\int \varepsilon(\tilde\nu) d\tilde\nu = 4.319\times10^{-9} |M_{0\to n}|^2 \quad [\mathrm{cm\,M^{-1}}]$$ - Units: C·m → M·cm⁻¹ - User can adjust constants if necessary for units.
 
 ------------------------------------------------------------------------
 
 ## 18. Peak Molar Extinction Coefficient
 
 Assuming a Gaussian lineshape with FWHM $\Delta\tilde\nu$
-(user-assigned, e.g., 50–100 cm⁻¹): $$
-\varepsilon_{\max} = \frac{\int \varepsilon \, d\tilde\nu}{\Delta\tilde\nu} \sqrt{\frac{4\ln2}{\pi}}
-$$ - Plug in the computed integral from Step 2 and the user-specified
+(user-assigned, e.g., 50–100 cm⁻¹): $$\varepsilon_{\max} = \frac{\int \varepsilon \, d\tilde\nu}{\Delta\tilde\nu} \sqrt{\frac{4\ln2}{\pi}}$$ - Plug in the computed integral from Step 2 and the user-specified
 FWHM.
 
 - Since IR overtones usually have extremely small molar exticntion
