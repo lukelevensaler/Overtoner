@@ -104,7 +104,6 @@ Once installed, you can run the solver from the repository directory:
     # Activate the environment (if not already active)
     conda activate morse_solver
 
-
     # Run the CLI
     python3 run_morse_model.py compute --help
 
@@ -172,9 +171,8 @@ moment derivatives using SCF dipole moments.
 
 ### Single Bond Axis (Default):
 
-For bond pair $(i,j)$, create bond vector and normalize: $$
-\vec{u}_{ij} = \frac{\vec{r}_j - \vec{r}_i}{|\vec{r}_j - \vec{r}_i|}
-$$
+For bond pair $(i,j)$, create bond vector and normalize: 
+$$\vec{u}_{ij} = \frac{\vec{r}_j - \vec{r}_i}{|\vec{r}_j - \vec{r}_i|}$$
 
 Displacement along bond axis: $$
 \begin{aligned}
@@ -328,25 +326,10 @@ polynomial corrections retain far more than 16 digits.
 ## 2. Normalization Constants in Log Space
 
 The Morse eigenfunction normalization constants $$
-N_v
-=
-\sqrt{
-\frac{
-a\,(2\lambda - 2v - 1)\,\Gamma(v+1)
-}{
-\Gamma(2\lambda - v)
-}
-}
+N_v=\sqrt{\frac{a\,(2\lambda - 2v - 1)\,\Gamma(v+1)}{\Gamma(2\lambda - v)}}
 $$ are never formed directly. Instead,
 `high_precision_log_N_v(v,a,\lambda)` computes $$
-\ln N_v
-=
-\frac12\Bigl[
-\ln a
-+ \ln(2\lambda - 2v - 1)
-+ \ln\Gamma(v+1)
-- \ln\Gamma(2\lambda - v)
-\Bigr],
+\ln N_v=\frac12\Bigl[\ln a + \ln(2\lambda - 2v - 1)+ \ln\Gamma(v+1)- \ln\Gamma(2\lambda - v)\Bigr],
 $$ entirely in `Decimal` log space using `high_precision_log_gamma`. The
 actual $N_v$ is only obtained, if needed, via $$
 N_v = \exp\bigl(\ln N_v\bigr),
@@ -364,14 +347,7 @@ The Morse overlaps used in `high_precision_S1_0n` and
 $c_m$ of the polynomial expansion $$
 L_n^{(\alpha_n)}(y) = \sum_{m=0}^{n} c_m\, y^m
 $$ are computed via Gamma functions in log form: $$
-\ln c_m
-=
-\ln\Gamma(n+\alpha_n+1)
-\,-\,
-\ln\Gamma(n-m+1)
-\,-\,
-\ln\Gamma(\alpha_n+m+1),
-\qquad m=0,\dots,n.
+\ln c_m=\ln\Gamma(n+\alpha_n+1)\,-\,\ln\Gamma(n-m+1)\,-\,\ln\Gamma(\alpha_n+m+1),\qquad m=0,\dots,n.
 $$
 
 This is exactly what the loop over $m$ in
@@ -390,28 +366,14 @@ The function `high_precision_S1_0n` (which calls
 high-precision evaluation of the linear overlap $S_1$ for the $0\to n$
 transition. In log-space form, the integral is reduced to a finite sum
 over $m$, $$
-S_1^{(0,n)}
-=
-\sum_{m=0}^n
-(-1)^m
-\frac{c_m}{m!}\, I_m,
+S_1^{(0,n)}=\sum_{m=0}^n(-1)^m\frac{c_m}{m!}\, I_m,
 $$ where $$
-I_m
-=
-\int_0^\infty
-y^{\beta-1}\,e^{-y}
-\Bigl(\ln\tfrac{y}{2\lambda}\Bigr)
-\,dy
-\quad\text{with}\quad
-\beta = 2\lambda - 5 + m.
+I_m=\int_0^\inftyy^{\beta-1}\,e^{-y}\Bigl(\ln\tfrac{y}{2\lambda}\Bigr)\,dy\quad\text{with}\quad\beta = 2\lambda - 5 + m.
 $$
 
 Analytically, this integral can be expressed in terms of $\Gamma$ and
 $\psi$: $$
-I_m
-=
-\Gamma(\beta)\,
-\Bigl[\psi(\beta) - \ln(2\lambda)\Bigr].
+I_m=\Gamma(\beta)\,\Bigl[\psi(\beta) - \ln(2\lambda)\Bigr].
 $$
 
 The code evaluates this in log-magnitude and sign form:
@@ -420,36 +382,22 @@ The code evaluates this in log-magnitude and sign form:
 2.  Compute $\psi(\beta)$ via `high_precision_digamma(beta)`.
 3.  Compute $\ln(2\lambda)$ as `log_2lambda = (2*lambda_dec).ln()`.
 4.  Form the difference $$
-     \Delta
-     =
-     \psi(\beta) - \ln(2\lambda).
-     $$
+    \Delta=\psi(\beta) - \ln(2\lambda).
+    $$
 5.  Determine the sign and log-magnitude: $$
-     \mathrm{sign}(I_m) = \mathrm{sign}(\Delta),\qquad
-     \ln|I_m| = \ln\Gamma(\beta) + \ln|\Delta|.
-     $$
+    \mathrm{sign}(I_m) = \mathrm{sign}(\Delta),\qquad\ln|I_m| = \ln\Gamma(\beta) + \ln|\Delta|.
+    $$
 
 The factorial $m!$ is likewise handled via high-precision log-gamma: $$
 \ln m! = \ln\Gamma(m+1).
 $$
 
 Thus, each term in the sum is represented purely through logs: $$
-\text{term}_m
-=
-(-1)^m\,
-c_m\,I_m / m!,
+\text{term}_m=(-1)^m\,c_m\,I_m / m!,
 $$ $$
-\ln|\text{term}_m|
-=
-\ln c_m
-+
-\ln|I_m|
--
-\ln m!,
+\ln|\text{term}_m|=\ln c_m+\ln|I_m|-\ln m!,
 $$ $$
-\mathrm{sign}(\text{term}_m)
-=
-(-1)^m \cdot \mathrm{sign}(c_m) \cdot \mathrm{sign}(I_m).
+\mathrm{sign}(\text{term}_m)=(-1)^m \cdot \mathrm{sign}(c_m) \cdot \mathrm{sign}(I_m).
 $$
 
 The `high_precision_S1_0n_log_space` routine builds:
@@ -461,16 +409,9 @@ and **never** directly forms $c_m$, $I_m$, or $m!$ in floating point.
 
 After the sum $\sum_m \text{term}_m$ is computed (see §5), the overall
 normalization factor is applied in log space: $$
-S_1^{(0,n)} =
-N_0 N_n\,a^{-2}\,\sum_{m=0}^n \text{term}_m,
+S_1^{(0,n)} =N_0 N_n\,a^{-2}\,\sum_{m=0}^n \text{term}_m,
 $$ with $$
-\ln|N_0 N_n a^{-2}|
-=
-\ln N_0
-+
-\ln N_n
--
-2\ln a.
+\ln|N_0 N_n a^{-2}|=\ln N_0+\ln N_n-2\ln a.
 $$
 
 Only at the very end is this combined log prefactor and log sum
@@ -481,37 +422,16 @@ converted back to a real number via exponentiation.
 The high-precision quadratic-overlap routine `high_precision_S2_0n`
 mirrors the structure of `high_precision_S1_0n` but uses an $I_m^{(2)}$
 integral that contains both $\psi$ and $\psi_1$: $$
-S_2^{(0,n)} =
-\sum_{m=0}^n
-(-1)^m
-\frac{c_m}{m!}\, I_m^{(2)},
+S_2^{(0,n)} =\sum_{m=0}^n(-1)^m\frac{c_m}{m!}\, I_m^{(2)},
 $$ with $$
-I_m^{(2)}
-=
-\Gamma(\beta)
-\bigl[
-\psi(\beta)^2
-+
-\psi_1(\beta)
--
-2\ln(2\lambda)\,\psi(\beta)
-+
-\ln(2\lambda)^2
-\bigr].
+I_m^{(2)}=\Gamma(\beta)\bigl[\psi(\beta)^2+\psi_1(\beta)-2\ln(2\lambda)\,\psi(\beta)+\ln(2\lambda)^2\bigr].
 $$
 
 The code evaluates the bracket $$
-B(\beta)
-=
-\psi(\beta)^2 + \psi_1(\beta)
--
-2\ln(2\lambda)\,\psi(\beta)
-+
-\ln(2\lambda)^2
+B(\beta)=\psi(\beta)^2 + \psi_1(\beta)-2\ln(2\lambda)\,\psi(\beta)+\ln(2\lambda)^2
 $$ in high precision, then decomposes $I_m^{(2)}$ into a sign and a
 log-magnitude: $$
-\mathrm{sign}(I_m^{(2)}) = \mathrm{sign}(B(\beta)),\qquad
-\ln|I_m^{(2)}| = \ln\Gamma(\beta) + \ln|B(\beta)|.
+\mathrm{sign}(I_m^{(2)}) = \mathrm{sign}(B(\beta)),\qquad\ln|I_m^{(2)}| = \ln\Gamma(\beta) + \ln|B(\beta)|.
 $$
 
 As for $S_1$, the term magnitudes and signs are stored as `log_terms`
@@ -529,14 +449,14 @@ $$ is carried out by
 
 1.  Each pair $(\ln|t_m|, \mathrm{sign}(t_m))$ is converted back to a
     `Decimal` value: $$
-     t_m = \mathrm{sign}(t_m)\,\exp\bigl(\ln|t_m|\bigr).
-     $$ Extremely small terms with $\ln|t_m|$ below a cutoff (e.g. less
+    t_m = \mathrm{sign}(t_m)\,\exp\bigl(\ln|t_m|\bigr).
+    $$ Extremely small terms with $\ln|t_m|$ below a cutoff (e.g. less
     than about $-1000$) are discarded as numerically irrelevant.
 
 2.  The terms $t_m$ are then summed purely in `Decimal` arithmetic: $$
-     S = \sum_{m=0}^n t_m
-     $$ with 200 (or more) digits of precision, which preserves dozens
-    of significant digits even when the partial sums suffer catastrophic
+    S = \sum_{m=0}^n t_m
+    $$ with 200 (or more) digits of precision, which preserves dozens of
+    significant digits even when the partial sums suffer catastrophic
     cancellation.
 
 This strategy ensures that while individual terms can be as large as $$
@@ -762,7 +682,7 @@ $$
 
 ## 11. Compute Gamma Functions
 
-### 11a) Express I_m^{(1)} via Gamma and Digamma Functions
+### 11a) Express $I_m^{(1)}$ via Gamma and Digamma Functions
 
 $$
 I_m^{(1)} = \Gamma(2\lambda-5+m) \psi(2\lambda-5+m) - \ln(2\lambda) \Gamma(2\lambda-5+m),
@@ -785,13 +705,11 @@ $$ with $$
 I_m^{(2)} = \int_0^{\infty} y^{2\lambda-6+m} e^{-y} (\ln y - \ln 2\lambda)^2 dy.
 $$
 
-## 13. Express Gamma Fucntions
+## 13. Express Gamma Functions
 
-### 13a) Express I_m^{(2)} via Digamma and Trigamma Functions
+### 13a) Express $I_m^{(2)} via Digamma and Trigamma Functions$\$
 
-$$
-I_m^{(2)} = \Gamma(2\lambda-5+m) \Bigl[ \psi(2\lambda-5+m)^2 + \psi^{(1)}(2\lambda-5+m) - 2 \ln 2\lambda \psi(2\lambda-5+m) + (\ln 2\lambda)^2 \Bigr],
-$$ where $\psi^{(1)}(x)$ is the trigamma function.
+I_m^{(2)} = (2+m) , \$\$ where $\psi^{(1)}(x)$ is the trigamma function.
 
 ### 13b) Term-by-Term Sum
 
@@ -904,13 +822,11 @@ The CLI will prompt for each parameter:
 
     Morse Solver for IR (or NIR) Overtone Extinction Coefficients
 
-
     Enter atomic mass of element A (amu): 12.011
     Enter atomic mass of element B (amu): 1.008
     Enter fundamental frequency (cm⁻¹): 2900.0
     Enter observed frequency (cm⁻¹): 8700.0
     Enter overtone number (integer): 3
-
 
     📐 Molecular Geometry Input
     Choose input method:
@@ -918,16 +834,13 @@ The CLI will prompt for each parameter:
     2. Load from file
     Selection: 1
 
-
     Enter molecular coordinates (Element x y z format, blank line to finish):
     C 0.0 0.0 0.0
     H 1.1 0.0 0.0
     [blank line]
 
-
     Enter spin multiplicity: 0
     Enter bond atom indices (i,j format): 0,1
-
 
     Advanced Options (press Enter for defaults)
     Finite difference step size (Å) [0.005]:
@@ -958,10 +871,8 @@ O -1.200000 0.000000 0.000000
 H -1.800000 0.800000 0.000000
 EOF
 
-
 # Then use in batch mode:
 python3 run_morse_model.py compute --coords molecule.xyz [other parameters...]
-
 ```
 
 ### Option 3: Direct input of all coordinates and parameters (Advanced)
