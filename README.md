@@ -316,7 +316,7 @@ $S_2$ overlap integrals.
 
 ## 3. Laguerre Coefficients in Log Space
 
-The Morse overlaps used in `high_precision_S1_0n` and `high_precision_S2_0n` involve associated Laguerre polynomials \$L_n^{(\_n)}(y)\`. In the high-precision routines, the coefficients $c_m$ of the polynomial expansion $$L_n^{(\alpha_n)}(y) = \sum_{m=0}^{n} c_m\, y^m$$ are computed via Gamma functions in log form: $$\ln c_m=\ln\Gamma(n+\alpha_n+1)\,-\,\ln\Gamma(n-m+1)\,-\,\ln\Gamma(\alpha_n+m+1),\qquad m=0,\dots,n.$$
+The Morse overlaps used in `high_precision_S1_0n` and `high_precision_S2_0n` involve associated Laguerre polynomials $L_n^{(\_n)}(y)\$. In the high-precision routines, the coefficients $c_m$ of the polynomial expansion $$L_n^{(\alpha_n)}(y) = \sum_{m=0}^{n} c_m\, y^m$$ are computed via Gamma functions in log form: $$\ln c_m=\ln\Gamma(n+\alpha_n+1)\,-\,\ln\Gamma(n-m+1)\,-\,\ln\Gamma(\alpha_n+m+1),\qquad m=0,\dots,n.$$
 
 This is exactly what the loop over $m$ in `high_precision_S1_0n_log_space` and `high_precision_S2_0n` does: it builds a list of `Decimal` values `log_c_values` (or `log_c_vals`) holding $\ln c_m$. By design, $$c_m > 0 \quad\Rightarrow\quad \text{sign}(c_m) = +1,$$ which is stored separately as `c_signs`.
 
