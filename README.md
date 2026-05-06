@@ -267,11 +267,11 @@ implements the Stirling-form approximation for $\ln\Gamma(x)$ in
 Section 1. - `high_precision_digamma(x)`,
 `high_precision_polygamma(1, x)`: implement the large-$x$ expansions for
 $\psi(x)$ and $\psi_1(x)$ in Section 1. -
-`high_precision_log_N_v(v, a, \lambda)`,
-`high_precision_N_v(v, a, \lambda)`: implement the normalization $N_v$
-in Section 2 and Part C.3. - `high_precision_S1_0n(n, a, \lambda)`:
+`high_precision_log_N_v(v, a, λ)`,
+`high_precision_N_v(v, a, λ)`: implement the normalization $N_v$
+in Section 2 and Part C.3. - `high_precision_S1_0n(n, a, λ)`:
 evaluates the linear overlap $S_1 = \langle\psi_0|Q|\psi_n\rangle$ as in
-Sections 4.1, 8, 10, and 11. - `high_precision_S2_0n(n, a, \lambda)`:
+Sections 4.1, 8, 10, and 11. - `high_precision_S2_0n(n, a, λ)`:
 evaluates the quadratic overlap $S_2 = \langle\psi_0|Q^2|\psi_n\rangle$
 as in Sections 4.2, 8, 12, and 13. -
 `high_precision_alternating_sum_from_logs(...)`: performs the stabilized
@@ -309,7 +309,7 @@ polynomial corrections retain far more than 16 digits.
 ## 2. Normalization Constants in Log Space
 
 The Morse eigenfunction normalization constants $$N_v=\sqrt{\frac{a\,(2\lambda - 2v - 1)\,\Gamma(v+1)}{\Gamma(2\lambda - v)}}$$ are never formed directly. Instead,
-`high_precision_log_N_v(v,a,\lambda)` computes $$\ln N_v=\frac12\Bigl[\ln a + \ln(2\lambda - 2v - 1)+ \ln\Gamma(v+1)- \ln\Gamma(2\lambda - v)\Bigr]$$ entirely in `Decimal` log space using `high_precision_log_gamma`. The actual $N_v$ is only obtained, if needed, via $$N_v = \exp\bigl(\ln N_v\bigr),$$ and underflows are handled explicitly (values below about $\ln 10^{-100}$ are clamped).
+`high_precision_log_N_v(v, a, λ)` computes $$\ln N_v=\frac12\Bigl[\ln a + \ln(2\lambda - 2v - 1)+ \ln\Gamma(v+1)- \ln\Gamma(2\lambda - v)\Bigr]$$ entirely in `Decimal` log space using `high_precision_log_gamma`. The actual $N_v$ is only obtained, if needed, via $$N_v = \exp\bigl(\ln N_v\bigr),$$ and underflows are handled explicitly (values below about $\ln 10^{-100}$ are clamped).
 
 These log-space normalization constants are used both in the $S_1$ and
 $S_2$ overlap integrals.
@@ -324,7 +324,10 @@ This is exactly what the loop over $m$ in `high_precision_S1_0n_log_space` and `
 
 ### 4.1. $S_1 = \langle\psi_0|Q|\psi_n\rangle$ (`high_precision_S1_0n`)
 
-The function `high_precision_S1_0n` (which calls `high_precision_S1_0n_log_space` internally) implements the high-precision evaluation of the linear overlap $S_1$ for the $0\to n$ transition. In log-space form, the integral is reduced to a finite sum over $m$, $$S_1^{(0,n)}=\sum_{m=0}^n(-1)^m\frac{c_m}{m!}\, I_m, $$ where $$I_m=\int_0^\inftyy^{\beta-1}\,e^{-y}\Bigl(\ln\tfrac{y}{2\lambda}\Bigr)\,dy\quad\text{with}\quad\beta = 2\lambda - 5 + m.$$
+The function `high_precision_S1_0n` (which calls `high_precision_S1_0n_log_space` internally) implements the high-precision evaluation of the linear overlap $S_1$ for the $0\to n$ transition. In log-space form, the integral is reduced to a finite sum over $m$, $$S_1^{(0,n)}=\sum_{m=0}^n(-1)^m\frac{c_m}{m!}\, I_m$$ 
+
+where:
+$$I_m = \int_0^\infty y^{\beta-1} e^{-y} \Bigl(\ln \tfrac{y}{2\lambda}\Bigr)\,dy,\quad \text{with} \quad \beta = 2\lambda - 5 + m$$
 
 Analytically, this integral can be expressed in terms of $\Gamma$ and
 $\psi$: $$I_m=\Gamma(\beta)\,\Bigl[\psi(\beta) - \ln(2\lambda)\Bigr].$$
