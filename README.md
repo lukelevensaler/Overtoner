@@ -1,6 +1,6 @@
 
 
-# Overtoner is a quantum-computation tool for deriving molar extinction coefficients for IR/NIR peaks.
+# Overtoner is a quantum-computation tool for deriving molar extinction coefficients of IR/NIR peaks.
 
 ## This CLI performs the following quantum-chemistry and Morse-model-based anharmonicity calculations to determine the molar extinction coefficient ε in $\text{M·cm}^{-1}$ for any organic molecule’s IR (or NIR) overtone peak. Its algorithm can even compute ε values for fundamental peaks, at full anharmonic accuracy.
 
