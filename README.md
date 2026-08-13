@@ -1,8 +1,8 @@
 
 
-# Welcome to the Overtoner, a quantum computation tool for deriving molar extinction coefficients for IR/NIR peaks.
+# Overtoner is a quantum computation tool for deriving molar extinction coefficients for IR/NIR peaks.
 
-## This CLI performs the following quantum chemistry and Morse Model-based anharmonicty calulations to determine the molar extinction coefficent ε in $\text{M·cm}^{-1}$ for any organic molecule’s IR (or NIR) overtone peak. Its algorithm can even compute ε values for fundamnetal peaks, at full anharmonic accuracy.
+## This CLI performs the following quantum chemistry and Morse Model-based anharmonicity calculations to determine the molar extinction coefficient ε in $\text{M·cm}^{-1}$ for any organic molecule’s IR (or NIR) overtone peak. Its algorithm can even compute ε values for fundamental peaks, at full anharmonic accuracy.
 
 ## Inputs required
 
@@ -124,7 +124,7 @@ Once installed, you can run the solver from the repository directory:
 
 This section describes the ab initio geometry optimization process,
 which is powered by Berny computations and Self-consistent field (SCF)
-evalutaions.
+evaluations.
 
 ## A.1 Initial Geometry Setup
 
@@ -414,7 +414,7 @@ for very high overtones.
 
 - Mass-weighted stretch coordinate: denote the (mass-weighted) normal
   coordinate as $Q$ (units: m).
-- Reduced mass for an A-B bond (e.g. N–H):
+- Reduced mass for an A-B bond (e.g., N–H):
 
 $$\mu = \frac{m_A m_B}{m_A + m_B}$$
 
@@ -589,7 +589,7 @@ Assuming a Gaussian lineshape with FWHM $\Delta\tilde\nu$
 (user-assigned, e.g., 50–100 cm⁻¹): $$\varepsilon_{\max} = \frac{\int \varepsilon \, d\tilde\nu}{\Delta\tilde\nu} \sqrt{\frac{4\ln2}{\pi}}$$ - Plug in the computed integral from Step 2 and the user-specified
 FWHM.
 
-- Since IR overtones usually have extremely small molar exticntion
+- Since IR overtones usually have extremely small molar extinction
   coefficients in general, and NIR overtones have even smaller values,
   the results are scaled by a factor of $10^{64}$. This constant scalar
   multiple at the end of all calculations ensures that the results are
@@ -676,7 +676,7 @@ The CLI will prompt for each parameter:
 #### Option 1: Direct molecular information input via the interactive CLI
 
 ``` bash
-# Example of how the inetractive prompt handles:
+# Example of how the interactive prompt handles:
 Enter molecular coordinates (Element x y z format):
 C 0.000000 0.000000 0.000000
 H 1.100000 0.000000 0.000000
@@ -685,7 +685,7 @@ H -1.800000 0.800000 0.000000
 [blank line to finish]
 ```
 
-#### Option 2: File input (+ other necesary molecular parameters in interactive mode)
+#### Option 2: File input (+ other necessary molecular parameters in interactive mode)
 
 ``` bash
 # Create coordinates file (e.g., molecule.xyz):
