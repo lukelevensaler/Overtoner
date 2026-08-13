@@ -3,7 +3,7 @@
 
 This section describes the ab initio geometry optimization process,
 which is powered by Berny computations and Self-consistent field (SCF)
-evalutaions.
+evaluations.
 
 ## A.1 Initial Geometry Setup
 
