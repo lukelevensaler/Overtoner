@@ -1,8 +1,8 @@
 
 
-# Overtoner is a quantum computation tool for deriving molar extinction coefficients for IR/NIR peaks.
+# Overtoner is a quantum-computation tool for deriving molar extinction coefficients for IR/NIR peaks.
 
-## This CLI performs the following quantum chemistry and Morse Model-based anharmonicity calculations to determine the molar extinction coefficient ε in $\text{M·cm}^{-1}$ for any organic molecule’s IR (or NIR) overtone peak. Its algorithm can even compute ε values for fundamental peaks, at full anharmonic accuracy.
+## This CLI performs the following quantum-chemistry and Morse-model-based anharmonicity calculations to determine the molar extinction coefficient ε in $\text{M·cm}^{-1}$ for any organic molecule’s IR (or NIR) overtone peak. Its algorithm can even compute ε values for fundamental peaks, at full anharmonic accuracy.
 
 ## Inputs required
 
@@ -38,7 +38,7 @@ $$
 D_e^{\mathrm{cm}^{-1}} = \frac{\nu_e}{4\,|x_e|},
 $$
 
-which avoids sign-convention issues that can make $D_e$ negative. This
+which avoids sign-convention issues that can cause $D_e$ to be negative. This
 $D_e^{\mathrm{cm}^{-1}}$ is then converted to Joules and used, together
 with the reduced mass, to construct the Morse parameters $a$ and
 $\lambda$ that enter the high-precision overlap and intensity
@@ -67,8 +67,8 @@ calculations.
 
 <!-- -->
 
-    git clone https://github.com/lukelevensaler/Organic-Morse-Solver.git
-    cd Organic-Morse-Solver
+    git clone https://github.com/lukelevensaler/Overtoner.git
+    cd Overtoner
 
 2.  **Create the Conda Environment**
 
